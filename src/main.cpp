@@ -15,10 +15,8 @@ void loop() {
     char input = Serial.read();
     if (input == 'o') {
       servoOpen();
-      Serial.println("Lock Open");
     } else if (input == 'c') {
       servoClose();
-      Serial.println("Lock Closed");
     }
   }
 }

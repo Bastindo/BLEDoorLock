@@ -15,10 +15,8 @@ class DoorLockCallbacks : public BLECharacteristicCallbacks {
 
         if (value[0] == 'o') {
             servoOpen();
-            Serial.println("[Servo] Lock Open");
         } else if (value[0] == 'c') {
             servoClose();
-            Serial.println("[Servo] Lock Closed");
         }
     }
 };
@@ -62,5 +60,5 @@ void setupBLE() {
     pAdvertising->setAppearance(0x0708);    // 0x0708: Door Lock
     pAdvertising->start();
 
-    Serial.println("BLE Ready");
+    Serial.println("[BLE Server] BLE Ready");
 }
