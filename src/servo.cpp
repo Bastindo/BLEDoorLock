@@ -16,9 +16,9 @@ void setServoAngle(int angle) {
 }
 
 void servoOpen() {
-    servo.write(0);
+    servo.write(50);
 }
 
 void servoClose() {
-    servo.write(50);
+    servo.write(0);
 }

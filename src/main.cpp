@@ -2,10 +2,12 @@
 #include <ESP32Servo.h>
 
 #include "servo.h"
+#include "ble_server.h"
 
 void setup() {
   Serial.begin(115200);
   setupServo();
+  setupBLE();
 }
 
 void loop() {
