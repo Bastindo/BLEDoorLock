@@ -1,11 +1,16 @@
 #include <Arduino.h>
-#include <ESP32Servo.h>
 
-#include "servo.h"
 #include "ble_server.h"
+#include "log.h"
+#include "servo.h"
 
 void setup() {
   Serial.begin(115200);
+  while(!Serial && !Serial.available()){}
+  setupLog();
+
+  logverbose("Starting up...");
+
   setupServo();
   setupBLE();
 }

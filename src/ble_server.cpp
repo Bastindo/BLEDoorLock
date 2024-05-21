@@ -1,9 +1,10 @@
+#include <Arduino.h>
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
-#include <Arduino.h>
 
 #include "ble_server.h"
+#include "log.h"
 #include "servo.h"
 
 class DoorLockCallbacks : public BLECharacteristicCallbacks {
@@ -15,19 +16,22 @@ class DoorLockCallbacks : public BLECharacteristicCallbacks {
 
         if (value[0] == 'o') {
             servoOpen();
+            pCharacteristic->setValue("idle");
+
         } else if (value[0] == 'c') {
             servoClose();
+            pCharacteristic->setValue("idle");
         }
     }
 };
 
 class ServerCallbacks : public BLEServerCallbacks {
     void onConnect(BLEServer *pServer) {
-        Serial.println("[BLE Server] Device Connected");
+        logverbose("[BLE Server] Device Connected");
     }
 
     void onDisconnect(BLEServer *pServer) {
-        Serial.println("[BLE Server] Device Disconnected");
+        logverbose("[BLE Server] Device Disconnected");
     }
 };
 
@@ -46,7 +50,7 @@ void setupBLE() {
     BLEDescriptor *doorlockDescriptor = new BLEDescriptor((uint16_t)0x2901);
     doorlockDescriptor->setValue("Door Lock");
 
-    pCharacteristic->setValue("hi");
+    pCharacteristic->setValue("idle");
     pCharacteristic->addDescriptor(doorlockDescriptor);
     pCharacteristic->setCallbacks(new DoorLockCallbacks());
 
@@ -60,5 +64,5 @@ void setupBLE() {
     pAdvertising->setAppearance(0x0708);    // 0x0708: Door Lock
     pAdvertising->start();
 
-    Serial.println("[BLE Server] BLE Ready");
+    logverbose("[BLE Server] BLE Ready");
 }
