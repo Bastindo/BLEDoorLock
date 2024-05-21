@@ -10,6 +10,7 @@ void setupServo() {
     servo.setPeriodHertz(50);
     servo.attach(SERVO_PIN, 500, 2500);
     servo.write(0);
+    logVerboseln(("[Servo] Servo attached on pin " + String(SERVO_PIN)).c_str());
     logInfoln("[Servo] Setup Done");
 }
 

@@ -16,19 +16,15 @@ class DoorLockCallbacks : public BLECharacteristicCallbacks {
 
         if (value[0] == 'o') {
             servoOpen();
-            logVerbose("[BLE Server] Characteristic Value: ");
-            Serial.println(pCharacteristic->getValue().c_str());
+            logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
             pCharacteristic->setValue("idle");
-            logVerbose("[BLE Server] Characteristic Value: ");
-            Serial.println(pCharacteristic->getValue().c_str());
+            logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
 
         } else if (value[0] == 'c') {
             servoClose();
-            logVerbose("[BLE Server] Characteristic Value: ");
-            Serial.println(pCharacteristic->getValue().c_str());
+            logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
             pCharacteristic->setValue("idle");
-            logVerbose("[BLE Server] Characteristic Value: ");
-            Serial.println(pCharacteristic->getValue().c_str());
+            logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
         }
     }
 };
@@ -62,8 +58,7 @@ void setupBLE() {
     logVerboseln("[BLE Server] Added door lock descriptor");
 
     pCharacteristic->setValue("idle");
-    logVerbose("[BLE Server] Characteristic Value: ");
-    Serial.println(pCharacteristic->getValue().c_str());
+    logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
 
     pCharacteristic->addDescriptor(doorlockDescriptor);
     pCharacteristic->setCallbacks(new DoorLockCallbacks());
@@ -72,8 +67,7 @@ void setupBLE() {
 
     BLEAdvertising *pAdvertising = pServer->getAdvertising();
     pAdvertising->addServiceUUID(UUID_SERVICE);
-    logVerbose("[BLE Server] Advertising with Service UUID: ");
-    Serial.println(UUID_SERVICE.toString().c_str());
+    logVerboseln(("[BLE Server] Advertising with Service UUID: " + (String)UUID_SERVICE.toString().c_str()).c_str());
 
     pAdvertising->setScanResponse(true);
     pAdvertising->setMinPreferred(0x06);
