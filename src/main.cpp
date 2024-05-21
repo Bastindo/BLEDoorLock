@@ -9,7 +9,7 @@ void setup() {
   while(!Serial && !Serial.available()){}
   setupLog();
 
-  logverbose("Starting up...");
+  logInfoln("Starting up...");
 
   setupServo();
   setupBLE();

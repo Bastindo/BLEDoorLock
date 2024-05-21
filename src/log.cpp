@@ -47,10 +47,26 @@ void setupLog() {
     Log.setShowLevel(false);    // Do not show loglevel since it is already shown in prefix
 }
 
-void logverbose(const char* message) {
+void logVerbose(const char* message) {
+    Log.verbose("%s", message);
+}
+
+void logVerboseln(const char* message) {
+    Log.verbose("%s\r\n", message);
+}
+
+void logInfo(const char* message) {
+    Log.notice("%s", message);
+}
+
+void logInfoln(const char* message) {
     Log.notice("%s\r\n", message);
 }
 
-void logerror(const char* message) {
+void logError(const char* message) {
+    Log.error("%s", message);
+}
+
+void logErrorln(const char* message) {
     Log.error("%s\r\n", message);
 }

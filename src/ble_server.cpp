@@ -27,11 +27,11 @@ class DoorLockCallbacks : public BLECharacteristicCallbacks {
 
 class ServerCallbacks : public BLEServerCallbacks {
     void onConnect(BLEServer *pServer) {
-        logverbose("[BLE Server] Device Connected");
+        logInfoln("[BLE Server] Device Connected");
     }
 
     void onDisconnect(BLEServer *pServer) {
-        logverbose("[BLE Server] Device Disconnected");
+        logInfoln("[BLE Server] Device Disconnected");
     }
 };
 
@@ -64,5 +64,5 @@ void setupBLE() {
     pAdvertising->setAppearance(0x0708);    // 0x0708: Door Lock
     pAdvertising->start();
 
-    logverbose("[BLE Server] BLE Ready");
+    logInfoln("[BLE Server] BLE Ready");
 }
