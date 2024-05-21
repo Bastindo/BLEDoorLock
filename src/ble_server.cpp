@@ -16,11 +16,19 @@ class DoorLockCallbacks : public BLECharacteristicCallbacks {
 
         if (value[0] == 'o') {
             servoOpen();
+            logVerbose("[BLE Server] Characteristic Value: ");
+            Serial.println(pCharacteristic->getValue().c_str());
             pCharacteristic->setValue("idle");
+            logVerbose("[BLE Server] Characteristic Value: ");
+            Serial.println(pCharacteristic->getValue().c_str());
 
         } else if (value[0] == 'c') {
             servoClose();
+            logVerbose("[BLE Server] Characteristic Value: ");
+            Serial.println(pCharacteristic->getValue().c_str());
             pCharacteristic->setValue("idle");
+            logVerbose("[BLE Server] Characteristic Value: ");
+            Serial.println(pCharacteristic->getValue().c_str());
         }
     }
 };
@@ -37,6 +45,7 @@ class ServerCallbacks : public BLEServerCallbacks {
 
 void setupBLE() {
     BLEDevice::init("Servo Lock");
+    logVerboseln("[BLE Server] Initialized as Servo Lock");
     BLEServer *pServer = BLEDevice::createServer();
     BLEService *pService = pServer->createService(UUID_SERVICE);
     BLECharacteristic *pCharacteristic = pService->createCharacteristic(
@@ -44,13 +53,18 @@ void setupBLE() {
         BLECharacteristic::PROPERTY_READ |
         BLECharacteristic::PROPERTY_WRITE
     );
+    logVerboseln("[BLE Server] Created Characteristic");
 
     pServer->setCallbacks(new ServerCallbacks());
 
     BLEDescriptor *doorlockDescriptor = new BLEDescriptor((uint16_t)0x2901);
     doorlockDescriptor->setValue("Door Lock");
+    logVerboseln("[BLE Server] Added door lock descriptor");
 
     pCharacteristic->setValue("idle");
+    logVerbose("[BLE Server] Characteristic Value: ");
+    Serial.println(pCharacteristic->getValue().c_str());
+
     pCharacteristic->addDescriptor(doorlockDescriptor);
     pCharacteristic->setCallbacks(new DoorLockCallbacks());
 
@@ -58,11 +72,15 @@ void setupBLE() {
 
     BLEAdvertising *pAdvertising = pServer->getAdvertising();
     pAdvertising->addServiceUUID(UUID_SERVICE);
+    logVerbose("[BLE Server] Advertising with Service UUID: ");
+    Serial.println(UUID_SERVICE.toString().c_str());
+
     pAdvertising->setScanResponse(true);
     pAdvertising->setMinPreferred(0x06);
     pAdvertising->setMinPreferred(0x12);
     pAdvertising->setAppearance(0x0708);    // 0x0708: Door Lock
     pAdvertising->start();
+    logVerboseln("[BLE Server] Advertising Started (Appearance: 0x0708 - Door Lock)");
 
     logInfoln("[BLE Server] BLE Ready");
 }
