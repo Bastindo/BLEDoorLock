@@ -39,7 +39,6 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
             pCharacteristic->setValue("idle");
             logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
-
         } else if (value[0] == 'c') {
             servoClose();
             logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
