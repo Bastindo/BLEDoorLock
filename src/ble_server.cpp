@@ -27,13 +27,51 @@ class ServerCallbacks: public NimBLEServerCallbacks {
     };
 };
 
-class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
+class UserCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     void onWrite(NimBLECharacteristic* pCharacteristic) {
         std::string value = pCharacteristic->getValue();
         if (value.length() == 0) {
             return;
         }
-
+        logVerboseln(("[BLE Server] User Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
+    };
+};
+class PassCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
+    void onWrite(NimBLECharacteristic* pCharacteristic) {
+        std::string value = pCharacteristic->getValue();
+        if (value.length() == 0) {
+            return;
+        }
+        logVerboseln(("[BLE Server] Pass Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
+    };
+};
+class LockStateCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
+    void onWrite(NimBLECharacteristic* pCharacteristic) {
+        std::string value = pCharacteristic->getValue();
+        if (value.length() == 0) {
+            return;
+        }
+        logVerboseln(("[BLE Server] Lock State Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
+        switch (atoi(value.c_str())) {
+        case 0:
+            servoClose();
+            logVerboseln("[BLE Server] Lock closed");
+            break;
+        case 1:
+            servoOpen();
+            logVerboseln("[BLE Server] Lock opened");
+            break;
+        case 2: // short open
+            servoOpen();
+            delay(10000);
+            servoClose();
+            pCharacteristic->setValue("0");
+            logVerboseln("[BLE Server] Lock short opened and closed");
+            break;
+        default:
+            logErrorln(("[BLE Server] Invalid lock state: " + (String)pCharacteristic->getValue().c_str()).c_str());
+            break;
+        }
         if (value[0] == 'o') {
             servoOpen();
             logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
@@ -48,8 +86,6 @@ class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     };
 };
 
-static CharacteristicCallbacks chrCallbacks;
-
 void setupBLE() {
     logInfoln("[BLE Server] Setting up BLE");
     NimBLEDevice::init("NimBLE Servo Lock");
@@ -61,8 +97,9 @@ void setupBLE() {
     NimBLEServer *pServer = NimBLEDevice::createServer();
 
     pServer->setCallbacks(new ServerCallbacks());
-
+    
     NimBLEService *pService = pServer->createService(UUID_SERVICE);
+    /*old
     NimBLECharacteristic *pNonSecureCharacteristic = pService->createCharacteristic(
         "2940", 
         NIMBLE_PROPERTY::READ | 
@@ -76,15 +113,41 @@ void setupBLE() {
         NIMBLE_PROPERTY::WRITE |
         NIMBLE_PROPERTY::WRITE_ENC |
         NIMBLE_PROPERTY::WRITE_AUTHEN
+    );*/
+    //new
+    NimBLECharacteristic *pUserCharacteristic = pService->createCharacteristic(
+        UUID_USER_CHARACTERISTIC, 
+        NIMBLE_PROPERTY::WRITE |
+        NIMBLE_PROPERTY::WRITE_ENC |
+        NIMBLE_PROPERTY::WRITE_AUTHEN
+    );
+    NimBLECharacteristic *pPassCharacteristic = pService->createCharacteristic(
+        UUID_PASS_CHARACTERISTIC, 
+        NIMBLE_PROPERTY::WRITE |
+        NIMBLE_PROPERTY::WRITE_ENC |
+        NIMBLE_PROPERTY::WRITE_AUTHEN
+    );
+    NimBLECharacteristic *pLockStateCharacteristic = pService->createCharacteristic(
+        UUID_LOCKSTATE_CHARACTERISTIC, 
+        NIMBLE_PROPERTY::READ | //for getting the lock state
+        NIMBLE_PROPERTY::WRITE
     );
 
-    pService->start();
 
+
+    pService->start();
+    /*old
     pNonSecureCharacteristic->setValue("idle");
     pNonSecureCharacteristic->setCallbacks(&chrCallbacks);
 
     pSecureCharacteristic->setValue("idle");
     pSecureCharacteristic->setCallbacks(&chrCallbacks);
+    */
+    //new
+    pUserCharacteristic->setCallbacks(new UserCharacteristicCallbacks());
+    pPassCharacteristic->setCallbacks(new PassCharacteristicCallbacks());
+    pLockStateCharacteristic->setValue("not initialized");
+    pLockStateCharacteristic->setCallbacks(new LockStateCharacteristicCallbacks());
 
     NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
     pAdvertising->addServiceUUID(UUID_SERVICE);
