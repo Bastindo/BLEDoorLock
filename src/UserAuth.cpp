@@ -44,7 +44,7 @@ User searchUser(const std::string& username) {
         if (line.find((username + ",").c_str()) == 0) { // if the line starts with the username
             size_t commaIndex = line.find(',');
             user.username = line.substr(0, commaIndex);
-            user.passwordHash = line.substr(commaIndex + 1);
+            user.passwordHash = line.substr(commaIndex + 1,line.length()-commaIndex-2); // remove whitespace
             Serial.print("Found user: ");
             Serial.print(user.username.c_str());
             Serial.println(", ");
@@ -80,7 +80,11 @@ std::string hashPassword(const std::string& password) {
 
 bool checkPasswordHash(const std::string& username, const std::string& passwordHash) { // Replace String with std::string
     User user = searchUser(username);
-    return (user.passwordHash == passwordHash);
+    logVerboseln(("[UserAuth] Checking password hash for user " + username).c_str());
+    logVerboseln(("[UserAuth] User password hash: " + user.passwordHash).c_str());
+    logVerboseln(("[UserAuth] Input password hash: " + passwordHash).c_str());
+    int check = user.passwordHash.compare(passwordHash);
+    return (check==0);
 }
 
 bool checkAccess(const std::string& username, const std::string& password) {
@@ -93,7 +97,7 @@ bool checkAccess(const std::string& username, const std::string& password) {
         logErrorln(("[UserAuth] User " + username + " authenticated").c_str());
         return true;
     }
-    logErrorln(("[UserAuth] User " + username + " typed wrong password").c_str());
+    logErrorln(("[UserAuth] User " + username + " typed wrong password: " + password).c_str());
     return false;
 }
 
@@ -102,11 +106,11 @@ void setupUserAuth() {
         Serial.println("Failed to mount file system");
         return;
     }
-
+    //LittleFS.remove("/users.csv"); // test, remove later
     if (!LittleFS.exists("/users.csv")) {
         File users = LittleFS.open("/users.csv", "w");
         users.close();
     }
-
-    addUser(User{"admin", hashPassword("admin")}); // test, remove later
+    
+    //addUser(User{"admin", hashPassword("admin")}); // test, remove later
 }
