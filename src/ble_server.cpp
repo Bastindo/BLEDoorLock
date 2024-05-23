@@ -191,17 +191,22 @@ void setupBLE() {
     pAdminActionCharacteristic->setCallbacks(new AdminActionCharacteristicCallbacks());
 
 
-    NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
-    pAdvertising->addServiceUUID(UUID_USER_SERVICE);
+    NimBLEAdvertising *pUserAdvertising = NimBLEDevice::getAdvertising();
+    pUserAdvertising->addServiceUUID(UUID_USER_SERVICE);
     logVerbose("[BLE Server] Advertising with User Service UUID: ");
     logVerboseln(UUID_USER_SERVICE);
-    pAdvertising->addServiceUUID(UUID_ADMIN_SERVICE);
+    pUserAdvertising->setScanResponse(true);
+    pUserAdvertising->setMinPreferred(0x06);
+    pUserAdvertising->setMinPreferred(0x12);
+    pUserAdvertising->setAppearance(0x0708);    // 0x0708: Door Lock
+    pUserAdvertising->start();
+    NimBLEAdvertising *pAdminAdvertising = NimBLEDevice::getAdvertising();
+    pAdminAdvertising->addServiceUUID(UUID_ADMIN_SERVICE);
     logVerbose("[BLE Server] Advertising with Admin Service UUID: ");
     logVerboseln(UUID_ADMIN_SERVICE);
-    pAdvertising->setScanResponse(true);
-    pAdvertising->setMinPreferred(0x06);
-    pAdvertising->setMinPreferred(0x12);
-    pAdvertising->setAppearance(0x0708);    // 0x0708: Door Lock
-    pAdvertising->start();
+    pAdminAdvertising->setScanResponse(true);
+    pAdminAdvertising->setMinPreferred(0x06);
+    pAdminAdvertising->setMinPreferred(0x12);
+    pAdminAdvertising->start();
     logInfoln("[BLE Server] BLE Ready");
 }
