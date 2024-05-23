@@ -1,11 +1,17 @@
 #ifndef BLE_SERVER_H
 #define BLE_SERVER_H
 
-#define UUID_SERVICE BLEUUID((uint16_t)0x183d)  // 0x183d: Authorization Control Service
+#define UUID_USER_SERVICE "2ff7c135-5010-497b-a054-cea3984c7cc9" 
+#define UUID_ADMIN_SERVICE "be527357-c722-4367-aac3-bddef6a6f6e2"
 #define UUID_CHARACTERISTIC "48cdff87-6063-4144-8e90-203741e90344"
 #define UUID_USER_CHARACTERISTIC "5d3932fa-2901-4b6b-9f41-7720976a85d4"
 #define UUID_PASS_CHARACTERISTIC "dd16cad0-a66a-402f-9183-201c20753647"
 #define UUID_LOCKSTATE_CHARACTERISTIC "05c5653a-7279-406c-9f9e-df72aa99ca2d"
+#define UUID_ADMIN_CHARACTERISTIC "68f2b041-dc1e-42af-af96-773a2386b08b"
+#define UUID_ADMINPASS_CHARACTERISTIC "394e8790-109b-47c0-aa67-1aa61c02188b"
+#define UUID_ADDUSER_CHARACTERISTIC "92acb83b-ff02-43ec-9adb-16755eb8ce9b"
+#define UUID_ADDPASS_CHARACTERISTIC "8de8c0c0-0568-40a0-a52b-520a6e772503"
+#define UUID_ADMINACTION_CHARACTERISTIC "b1d86fdf-7d5d-49b7-8da7-b02bd53bdb0a"
 #define SHORT_UNLOCK_TIME 10000 // ms
 #define BLE_PIN 123456 // "Pre-Shared Key"-like in a Multi-User Environment
 
@@ -14,6 +20,7 @@
 #include "log.h"
 #include "servo.h"
 #include "UserAuth.h"
+#include "admin_auth.h"
 
 void setupBLE();
 

@@ -45,10 +45,10 @@ User searchUser(const std::string& username) {
             size_t commaIndex = line.find(',');
             user.username = line.substr(0, commaIndex);
             user.passwordHash = line.substr(commaIndex + 1,line.length()-commaIndex-2); // remove whitespace
-            Serial.print("Found user: ");
+            /*Serial.print("Found user: ");
             Serial.print(user.username.c_str());
             Serial.println(", ");
-            Serial.println(user.passwordHash.c_str());
+            Serial.println(user.passwordHash.c_str());*/
             break;
         }
     }
@@ -70,10 +70,10 @@ std::string hashPassword(const std::string& password) {
         }
         hashedPassword += std::to_string(hash[i]);
     }
-    Serial.print("Password: ");
+    /*Serial.print("Password: ");
     Serial.println(password.c_str());
     Serial.print("Hashed password: ");
-    Serial.println(hashedPassword.c_str());
+    Serial.println(hashedPassword.c_str());*/
 
     return hashedPassword;
 }
@@ -103,7 +103,7 @@ bool checkAccess(const std::string& username, const std::string& password) {
 
 void setupUserAuth() {
     if (!LittleFS.begin(true)) {
-        Serial.println("Failed to mount file system");
+        logErrorln("Failed to mount file system");
         return;
     }
     //LittleFS.remove("/users.csv"); // test, remove later
