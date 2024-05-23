@@ -19,17 +19,27 @@ void processCommand(char* cmd, bool debugMode) {
   Serial.println();
 
   if (strcmp(cmd, "help") == 0 && debugMode) {
-    Serial.println("Available commands:");
+    Serial.println("Available commands [Debug mode]:");
     Serial.println("  help - Displays this help message");
     Serial.println("  open - Opens the lock");
     Serial.println("  close - Closes the lock");
     Serial.println("  shortopen - Opens the lock for " + String((float) SHORT_UNLOCK_TIME / 1000) + "s");
     Serial.println("  cat <file> - Displays the contents of a file on the LittleFS");
+    Serial.println("  adduser <username> <password> - Adds a user to the user database");
+    Serial.println("  removeuser <username> - Removes a user from the user database");
+    Serial.println("  hashpassword <password> - Hashes a password");
+    Serial.println("  sysinfo - Displays system information");
+    Serial.println("  reboot - Reboots the device");
   } 
   else if (strcmp(cmd, "help") == 0 && !debugMode) {
     Serial.println("Available commands:");
     Serial.println("  help - Displays this help message");
     Serial.println("  cat <file> - Displays the contents of a file on the LittleFS");
+    Serial.println("  adduser <username> <password> - Adds a user to the user database");
+    Serial.println("  removeuser <username> - Removes a user from the user database");
+    Serial.println("  hashpassword <password> - Hashes a password");
+    Serial.println("  sysinfo - Displays system information");
+    Serial.println("  reboot - Reboots the device");
   }
   else if (strcmp(cmd, "open") == 0 && debugMode) {
     servoOpen();
@@ -63,6 +73,43 @@ void processCommand(char* cmd, bool debugMode) {
       file.close();
     }
   }
+  else if (strncmp(cmd, "adduser ", 8) == 0) {
+    char* username = strtok(cmd + 8, " ");
+    char* password = strtok(NULL, " ");
+    User user;
+    user.username = username;
+    user.passwordHash = hashPassword(password);
+    addUser(user);
+  }
+  else if (strncmp(cmd, "removeuser ", 11) == 0) {
+    char* username = cmd + 11;
+    removeUser(username);
+  }
+  else if (strncmp(cmd, "hashpassword ", 13) == 0) {
+    char* password = cmd + 13;
+    Serial.println(hashPassword(password).c_str());
+  }
+  else if (strcmp(cmd, "sysinfo") == 0) {
+    Serial.println("System information:");
+    Serial.println("  Chip");
+    Serial.println("  ├ Chip model: " + String(ESP.getChipModel()));
+    Serial.println("  ├ Chip ID: " + String(ESP.getEfuseMac()));
+    Serial.println("  ├ Chip revision: " + String(ESP.getChipRevision()));
+    Serial.println("  └ CPU frequency: " + String(ESP.getCpuFreqMHz()));
+    Serial.println("  Heap");
+    Serial.println("  └ Free heap: " + String(ESP.getFreeHeap()));
+    Serial.println("  Flash");
+    Serial.println("  ├ Flash chip size: " + String(ESP.getFlashChipSize()));
+    Serial.println("  └ Flash chip speed: " + String(ESP.getFlashChipSpeed()));
+    Serial.println("  Misc");
+    Serial.println("  └ SDK version: " + String(ESP.getSdkVersion()));
+  }
+  else if (strcmp(cmd, "reboot") == 0) {
+    ESP.restart();
+  }
+  else if (strcmp(cmd, "") == 0) {
+    // Do nothing
+  }
   else {
     Serial.println("Unknown command: " + String(cmd));
   }
@@ -74,8 +121,13 @@ void cmdLoop(bool debugMode) {
   while (Serial.available() > 0) {
     char ch = Serial.read();
 
-    if (ch!= '\n' && ch!= '\r') {
-      Serial.print(ch);
+    if (ch == 8 || ch == 127) { // ASCII values for backspace
+      if (idx > 0) {
+        idx--;
+        Serial.print("\b \b"); // Move cursor back, overwrite with space, move back again
+      }
+    } else if (ch!= '\n' && ch!= '\r') {
+        Serial.print(ch);
     }
 
     if (ch == '\n' || ch == '\r') {
@@ -83,8 +135,8 @@ void cmdLoop(bool debugMode) {
       commandReceived = true;
       break;
     } else {
-      // Only store printable ASCII characters
-      if (ch >= 32 && ch <= 126) {
+      // Only store printable ANSI characters
+      if (ch >= 32 && ch <= 254) {
         buffer[idx++] = ch;
       }
     }
