@@ -1,8 +1,21 @@
 #include <NimBLEDevice.h>
+#include <AsyncTimer.h>
 
 #include "ble_server.h"
 #include "log.h"
 #include "servo.h"
+#include "UserAuth.h"
+
+NimBLECharacteristic *pUserCharacteristic;
+NimBLECharacteristic *pPassCharacteristic;
+NimBLECharacteristic *pLockStateCharacteristic;
+
+hw_timer_t *lockTimer = NULL;
+
+    void IRAM_ATTR lockTimerISR() {
+        servoClose();
+        pLockStateCharacteristic->setValue("0");
+    }
 
 class ServerCallbacks: public NimBLEServerCallbacks {
     void onConnect(NimBLEServer *pServer) {
@@ -26,11 +39,12 @@ class ServerCallbacks: public NimBLEServerCallbacks {
         logVerboseln(logstr);
     };
 };
-
+// unnessesary
 class UserCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     void onWrite(NimBLECharacteristic* pCharacteristic) {
         std::string value = pCharacteristic->getValue();
-        if (value.length() == 0) {
+        logVerboseln(("[BLE Server] User Characteristic Value: " + (String)pCharacteristic->getValue().c_str() + value.c_str()).c_str());
+        if (value.length() == 0) { 
             return;
         }
         logVerboseln(("[BLE Server] User Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
@@ -45,44 +59,43 @@ class PassCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
         logVerboseln(("[BLE Server] Pass Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
     };
 };
+// end unnessesary
+
 class LockStateCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     void onWrite(NimBLECharacteristic* pCharacteristic) {
         std::string value = pCharacteristic->getValue();
         if (value.length() == 0) {
             return;
         }
-        logVerboseln(("[BLE Server] Lock State Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
-        switch (atoi(value.c_str())) {
-        case 0:
-            servoClose();
-            logVerboseln("[BLE Server] Lock closed");
-            break;
-        case 1:
-            servoOpen();
-            logVerboseln("[BLE Server] Lock opened");
-            break;
-        case 2: // short open
-            servoOpen();
-            delay(10000);
-            servoClose();
-            pCharacteristic->setValue("0");
-            logVerboseln("[BLE Server] Lock short opened and closed");
-            break;
-        default:
-            logErrorln(("[BLE Server] Invalid lock state: " + (String)pCharacteristic->getValue().c_str()).c_str());
-            break;
+        std::string user = pUserCharacteristic->getValue();
+        std::string pass = pPassCharacteristic->getValue();
+        Serial.println(pUserCharacteristic->getValue().c_str());
+        
+        if (checkAccess(user, pass)) {
+            logInfoln("[BLE Server] Authentication successful");
+            logVerboseln(("[BLE Server] Lock State Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
+            switch (atoi(value.c_str())) {
+            case 0:
+                servoClose();
+                logVerboseln("[BLE Server] Lock closed");
+                break;
+            case 1:
+                servoOpen();
+                logVerboseln("[BLE Server] Lock opened");
+                break;
+            case 2: // short open
+                servoOpen();
+                timerAlarmEnable(lockTimer);
+                logVerboseln("[BLE Server] Lock short opened");
+                break;
+            default:
+                logErrorln(("[BLE Server] Invalid lock state: " + (String)pCharacteristic->getValue().c_str()).c_str());
+                break;
+            }
+        } else {
+            logErrorln("[BLE Server] Authentication failed");
         }
-        if (value[0] == 'o') {
-            servoOpen();
-            logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
-            pCharacteristic->setValue("idle");
-            logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
-        } else if (value[0] == 'c') {
-            servoClose();
-            logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
-            pCharacteristic->setValue("idle");
-            logVerboseln(("[BLE Server] Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
-        }
+        return;
     };
 };
 
@@ -92,7 +105,7 @@ void setupBLE() {
     NimBLEDevice::setPower(ESP_PWR_LVL_P9);
 
     NimBLEDevice::setSecurityAuth(true, true, true);
-    NimBLEDevice::setSecurityPasskey(123456);
+    NimBLEDevice::setSecurityPasskey(BLE_PIN);
     NimBLEDevice::setSecurityIOCap(BLE_HS_IO_DISPLAY_ONLY);
     NimBLEServer *pServer = NimBLEDevice::createServer();
 
@@ -115,35 +128,30 @@ void setupBLE() {
         NIMBLE_PROPERTY::WRITE_AUTHEN
     );*/
     //new
-    NimBLECharacteristic *pUserCharacteristic = pService->createCharacteristic(
+    pUserCharacteristic = pService->createCharacteristic(
         UUID_USER_CHARACTERISTIC, 
         NIMBLE_PROPERTY::WRITE |
         NIMBLE_PROPERTY::WRITE_ENC |
         NIMBLE_PROPERTY::WRITE_AUTHEN
     );
-    NimBLECharacteristic *pPassCharacteristic = pService->createCharacteristic(
+    pPassCharacteristic = pService->createCharacteristic(
         UUID_PASS_CHARACTERISTIC, 
         NIMBLE_PROPERTY::WRITE |
         NIMBLE_PROPERTY::WRITE_ENC |
         NIMBLE_PROPERTY::WRITE_AUTHEN
     );
-    NimBLECharacteristic *pLockStateCharacteristic = pService->createCharacteristic(
+    pLockStateCharacteristic = pService->createCharacteristic(
         UUID_LOCKSTATE_CHARACTERISTIC, 
         NIMBLE_PROPERTY::READ | //for getting the lock state
         NIMBLE_PROPERTY::WRITE
     );
 
-
+    // Short Lock Timer
+    lockTimer = timerBegin(0, 16000, true);     // 16 Mhz clock / 16000 -> 1ms timer
+    timerAttachInterrupt(lockTimer, &lockTimerISR, true);
+    timerAlarmWrite(lockTimer, SHORT_UNLOCK_TIME, false);
 
     pService->start();
-    /*old
-    pNonSecureCharacteristic->setValue("idle");
-    pNonSecureCharacteristic->setCallbacks(&chrCallbacks);
-
-    pSecureCharacteristic->setValue("idle");
-    pSecureCharacteristic->setCallbacks(&chrCallbacks);
-    */
-    //new
     pUserCharacteristic->setCallbacks(new UserCharacteristicCallbacks());
     pPassCharacteristic->setCallbacks(new PassCharacteristicCallbacks());
     pLockStateCharacteristic->setValue("not initialized");

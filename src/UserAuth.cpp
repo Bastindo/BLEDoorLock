@@ -1,35 +1,26 @@
-#include <Arduino.h>
-#include <FS.h>
-#include <LittleFS.h>
-
-File users;
-
-struct User {
-    String username;
-    String passwordHash;
-};
+#include "UserAuth.h"
 
 void addUser(const User& user) {
-    users = LittleFS.open("/users.csv", "a");
+    File users = LittleFS.open("/users.csv", "a");
     if (users) {
-        users.print(user.username);
+        users.print(user.username.c_str());
         users.print(",");
-        users.println(user.passwordHash);
+        users.println(user.passwordHash.c_str()); // Convert String to const char*
         users.close();
     } else {
         Serial.println("Failed to open file for writing");
     }
 }
 
-void removeUser(const String& username) {
+void removeUser(const std::string& username) {
     // Open a temporary file
     File tempFile = LittleFS.open("/temp.csv", "w");
-    users = LittleFS.open("/users.csv", "r");
+    File users = LittleFS.open("/users.csv", "r");
 
     while (users.available()) {
-        String line = users.readStringUntil('\n');
-        if (!line.startsWith(username + ",")) {
-            tempFile.println(line);
+        std::string line = users.readStringUntil('\n').c_str();
+        if (line.find((username + ",").c_str()) != 0) { // if the line does not start with the username
+            tempFile.println(line.c_str());
         }
     }
 
@@ -40,19 +31,24 @@ void removeUser(const String& username) {
     LittleFS.rename("/temp.csv", "/users.csv");
 }
 
-User searchUser(const String& username) {
+User searchUser(const std::string& username) {
     User user;
     user.username = "";  // Default empty username
     user.passwordHash = "";  // Default empty password hash
 
-    users = LittleFS.open("/users.csv", "r");
+    File users = LittleFS.open("/users.csv", "r");
 
     while (users.available()) {
-        String line = users.readStringUntil('\n');
-        if (line.startsWith(username + ",")) {
-            int commaIndex = line.indexOf(',');
-            user.username = line.substring(0, commaIndex);
-            user.passwordHash = line.substring(commaIndex + 1);
+        std::string line = users.readStringUntil('\n').c_str();
+        Serial.println(line.c_str());
+        if (line.find((username + ",").c_str()) == 0) { // if the line starts with the username
+            size_t commaIndex = line.find(',');
+            user.username = line.substr(0, commaIndex);
+            user.passwordHash = line.substr(commaIndex + 1);
+            Serial.print("Found user: ");
+            Serial.print(user.username.c_str());
+            Serial.println(", ");
+            Serial.println(user.passwordHash.c_str());
             break;
         }
     }
@@ -61,29 +57,56 @@ User searchUser(const String& username) {
     return user;
 }
 
+std::string hashPassword(const std::string& password) {
+    SHA3_256 sha3;
+    sha3.update(password.c_str(), password.length());
+    byte hash[32];
+    sha3.finalize(hash, sizeof(hash));
 
-bool checkPasswordHash(const String& username, const String& passwordHash) {
-    User user = searchUser(username);
-    return (user.username == username && user.passwordHash == passwordHash);
-}
-
-/*
-// Example usage
-void test() {
-    User newUser = {"john_doe", "hash123"};
-    addUser(newUser);
-
-    User foundUser = searchUser("john_doe");
-    if (foundUser.username == "") {
-        Serial.println("User not found");
-    } else {
-        Serial.print("Found user: ");
-        Serial.println(foundUser.username);
-        if (checkPasswordHash(newUser.username, newUser.passwordHash)) {
-            Serial.println("Password matches");
-        } else {
-            Serial.println("Password does not match");
+    std::string hashedPassword = "";
+    for (int i = 0; i < sizeof(hash); i++) {    // Convert byte array to string
+        if (hash[i] < 0x10) {
+            hashedPassword += "0";
         }
+        hashedPassword += std::to_string(hash[i]);
     }
+    Serial.print("Password: ");
+    Serial.println(password.c_str());
+    Serial.print("Hashed password: ");
+    Serial.println(hashedPassword.c_str());
+
+    return hashedPassword;
 }
-*/
+
+bool checkPasswordHash(const std::string& username, const std::string& passwordHash) { // Replace String with std::string
+    User user = searchUser(username);
+    return (user.passwordHash == passwordHash);
+}
+
+bool checkAccess(const std::string& username, const std::string& password) {
+    User user = searchUser(username);
+    if (user.username == "" || user.passwordHash == "") {
+        logErrorln(("[UserAuth] User " + username + " not found").c_str());
+        return false;
+    }
+    if (checkPasswordHash(username, hashPassword(password))) {
+        logErrorln(("[UserAuth] User " + username + " authenticated").c_str());
+        return true;
+    }
+    logErrorln(("[UserAuth] User " + username + " typed wrong password").c_str());
+    return false;
+}
+
+void setupUserAuth() {
+    if (!LittleFS.begin(true)) {
+        Serial.println("Failed to mount file system");
+        return;
+    }
+
+    if (!LittleFS.exists("/users.csv")) {
+        File users = LittleFS.open("/users.csv", "w");
+        users.close();
+    }
+
+    addUser(User{"admin", hashPassword("admin")}); // test, remove later
+}

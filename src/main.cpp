@@ -3,6 +3,7 @@
 #include "ble_server.h"
 #include "log.h"
 #include "servo.h"
+#include "UserAuth.h"
 
 // waits for serial and enables servo operations via serial input
 #define DEBUG_MODE 1
@@ -20,6 +21,7 @@ void setup() {
 
   setupServo();
   setupBLE();
+  setupUserAuth();
 }
 
 void loop() {
