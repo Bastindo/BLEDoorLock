@@ -1,7 +1,3 @@
-#include <Arduino.h>
-#include <ESP32Servo.h>
-
-#include "log.h"
 #include "servo.h"
 
 Servo servo;

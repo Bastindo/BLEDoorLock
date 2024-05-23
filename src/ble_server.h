@@ -1,3 +1,6 @@
+#ifndef BLE_SERVER_H
+#define BLE_SERVER_H
+
 #define UUID_SERVICE BLEUUID((uint16_t)0x183d)  // 0x183d: Authorization Control Service
 #define UUID_CHARACTERISTIC "48cdff87-6063-4144-8e90-203741e90344"
 #define UUID_USER_CHARACTERISTIC "5d3932fa-2901-4b6b-9f41-7720976a85d4"
@@ -6,4 +9,12 @@
 #define SHORT_UNLOCK_TIME 10000 // ms
 #define BLE_PIN 123456 // "Pre-Shared Key"-like in a Multi-User Environment
 
+#include <NimBLEDevice.h>
+
+#include "log.h"
+#include "servo.h"
+#include "UserAuth.h"
+
 void setupBLE();
+
+#endif
