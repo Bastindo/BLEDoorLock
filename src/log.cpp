@@ -1,5 +1,3 @@
-#include <ArduinoLog.h>
-
 #include "log.h"
 
 void printTimestamp(Print* _logOutput) {

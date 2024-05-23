@@ -1,10 +1,4 @@
-#include <NimBLEDevice.h>
-#include <AsyncTimer.h>
-
 #include "ble_server.h"
-#include "log.h"
-#include "servo.h"
-#include "UserAuth.h"
 
 NimBLECharacteristic *pUserCharacteristic;
 NimBLECharacteristic *pPassCharacteristic;
@@ -39,7 +33,7 @@ class ServerCallbacks: public NimBLEServerCallbacks {
         logVerboseln(logstr);
     };
 };
-// unnessesary
+// unnecessary
 class UserCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     void onWrite(NimBLECharacteristic* pCharacteristic) {
         std::string value = pCharacteristic->getValue();
@@ -59,7 +53,7 @@ class PassCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
         logVerboseln(("[BLE Server] Pass Characteristic Value: " + (String)pCharacteristic->getValue().c_str()).c_str());
     };
 };
-// end unnessesary
+// end unnecessary
 
 class LockStateCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     void onWrite(NimBLECharacteristic* pCharacteristic) {
@@ -108,26 +102,9 @@ void setupBLE() {
     NimBLEDevice::setSecurityPasskey(BLE_PIN);
     NimBLEDevice::setSecurityIOCap(BLE_HS_IO_DISPLAY_ONLY);
     NimBLEServer *pServer = NimBLEDevice::createServer();
-
     pServer->setCallbacks(new ServerCallbacks());
     
     NimBLEService *pService = pServer->createService(UUID_SERVICE);
-    /*old
-    NimBLECharacteristic *pNonSecureCharacteristic = pService->createCharacteristic(
-        "2940", 
-        NIMBLE_PROPERTY::READ | 
-        NIMBLE_PROPERTY::WRITE
-    );
-    NimBLECharacteristic *pSecureCharacteristic = pService->createCharacteristic(
-        UUID_CHARACTERISTIC, 
-        NIMBLE_PROPERTY::READ | 
-        NIMBLE_PROPERTY::READ_ENC | 
-        NIMBLE_PROPERTY::READ_AUTHEN |
-        NIMBLE_PROPERTY::WRITE |
-        NIMBLE_PROPERTY::WRITE_ENC |
-        NIMBLE_PROPERTY::WRITE_AUTHEN
-    );*/
-    //new
     pUserCharacteristic = pService->createCharacteristic(
         UUID_USER_CHARACTERISTIC, 
         NIMBLE_PROPERTY::WRITE |
