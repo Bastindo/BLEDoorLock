@@ -1,11 +1,12 @@
 #include <Arduino.h>
 
 #include "ble_server.h"
+#include "cmd.h"
 #include "log.h"
 #include "servo.h"
 #include "UserAuth.h"
 
-// waits for serial and enables servo operations via serial input
+// debug mode waits for serial and adds more commands
 #define DEBUG_MODE 1
 
 void setup() {
@@ -22,17 +23,9 @@ void setup() {
   setupServo();
   setupBLE();
   setupUserAuth();
+  setupCmd();
 }
 
 void loop() {
-  #if DEBUG_MODE == 1
-    if (Serial.available()) {
-      char input = Serial.read();
-      if (input == 'o') {
-        servoOpen();
-      } else if (input == 'c') {
-        servoClose();
-      }
-    }
-  #endif
+  cmdLoop(DEBUG_MODE);
 }

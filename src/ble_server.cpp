@@ -6,10 +6,10 @@ NimBLECharacteristic *pLockStateCharacteristic;
 
 hw_timer_t *lockTimer = NULL;
 
-    void IRAM_ATTR lockTimerISR() {
-        servoClose();
-        pLockStateCharacteristic->setValue("0");
-    }
+void IRAM_ATTR lockTimerISR() {
+    servoClose();
+    pLockStateCharacteristic->setValue("0");
+}
 
 class ServerCallbacks: public NimBLEServerCallbacks {
     void onConnect(NimBLEServer *pServer) {
@@ -95,7 +95,7 @@ class LockStateCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
 
 void setupBLE() {
     logInfoln("[BLE Server] Setting up BLE");
-    NimBLEDevice::init("NimBLE Servo Lock");
+    NimBLEDevice::init("NimBLE Servo Lock 2");
     NimBLEDevice::setPower(ESP_PWR_LVL_P9);
 
     NimBLEDevice::setSecurityAuth(true, true, true);
