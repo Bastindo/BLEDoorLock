@@ -30,6 +30,7 @@ void processCommand(char* cmd, bool debugMode) {
     Serial.println("  hashpassword <password> - Hashes a password");
     Serial.println("  sysinfo - Displays system information");
     Serial.println("  reboot - Reboots the device");
+    
   } 
   else if (strcmp(cmd, "help") == 0 && !debugMode) {
     Serial.println("Available commands:");
@@ -76,10 +77,7 @@ void processCommand(char* cmd, bool debugMode) {
   else if (strncmp(cmd, "adduser ", 8) == 0) {
     char* username = strtok(cmd + 8, " ");
     char* password = strtok(NULL, " ");
-    User user;
-    user.username = username;
-    user.passwordHash = hashPassword(password);
-    addUser(user);
+    addUser({username, hashPassword(password)});
   }
   else if (strncmp(cmd, "removeuser ", 11) == 0) {
     char* username = cmd + 11;
@@ -106,6 +104,15 @@ void processCommand(char* cmd, bool debugMode) {
   }
   else if (strcmp(cmd, "reboot") == 0) {
     ESP.restart();
+  }
+  else if (strncmp(cmd, "addAdmin ", 9) == 0) {
+    char* username = strtok(cmd + 9, " ");
+    char* password = strtok(NULL, " ");
+    addAdmin({username, hashPassword(password)});
+  }
+  else if (strncmp(cmd, "removeAdmin ", 12) == 0) {
+    char* username = cmd + 12;
+    removeAdmin(username);
   }
   else if (strcmp(cmd, "") == 0) {
     // Do nothing
