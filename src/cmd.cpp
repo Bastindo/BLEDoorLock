@@ -27,6 +27,8 @@ void processCommand(char* cmd, bool debugMode) {
     Serial.println("  cat <file> - Displays the contents of a file on the LittleFS");
     Serial.println("  adduser <username> <password> - Adds a user to the user database");
     Serial.println("  removeuser <username> - Removes a user from the user database");
+    Serial.println("  addadmin <username> <password> - Adds an admin account to the admin database");
+    Serial.println("  removeadmin <username> - Removes an admin account from the admin database");
     Serial.println("  hashpassword <password> - Hashes a password");
     Serial.println("  sysinfo - Displays system information");
     Serial.println("  reboot - Reboots the device");
@@ -38,6 +40,8 @@ void processCommand(char* cmd, bool debugMode) {
     Serial.println("  cat <file> - Displays the contents of a file on the LittleFS");
     Serial.println("  adduser <username> <password> - Adds a user to the user database");
     Serial.println("  removeuser <username> - Removes a user from the user database");
+    Serial.println("  addadmin <username> <password> - Adds an admin account to the admin database");
+    Serial.println("  removeadmin <username> - Removes an admin account from the admin database");
     Serial.println("  hashpassword <password> - Hashes a password");
     Serial.println("  sysinfo - Displays system information");
     Serial.println("  reboot - Reboots the device");
@@ -105,12 +109,12 @@ void processCommand(char* cmd, bool debugMode) {
   else if (strcmp(cmd, "reboot") == 0) {
     ESP.restart();
   }
-  else if (strncmp(cmd, "addAdmin ", 9) == 0) {
+  else if (strncmp(cmd, "addadmin ", 9) == 0) {
     char* username = strtok(cmd + 9, " ");
     char* password = strtok(NULL, " ");
     addAdmin({username, hashPassword(password)});
   }
-  else if (strncmp(cmd, "removeAdmin ", 12) == 0) {
+  else if (strncmp(cmd, "removeadmin ", 12) == 0) {
     char* username = cmd + 12;
     removeAdmin(username);
   }

@@ -8,7 +8,7 @@ void addAdmin(const Admin& admin) {
         admins.println(admin.passwordHash.c_str()); // Convert String to const char*
         admins.close();
     } else {
-        Serial.println("Failed to open file for writing");
+        logErrorln("[AdminAuth] Failed to open file for writing");
     }
 }
 
@@ -40,7 +40,6 @@ Admin searchAdmin(const std::string& username) {
 
     while (admins.available()) {
         std::string line = admins.readStringUntil('\n').c_str();
-        Serial.println(line.c_str());
         if (line.find((username + ",").c_str()) == 0) { // if the line starts with the username
             size_t commaIndex = line.find(',');
             admin.username = line.substr(0, commaIndex);

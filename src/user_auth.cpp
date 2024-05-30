@@ -8,7 +8,7 @@ void addUser(const User& user) {
         users.println(user.passwordHash.c_str()); // Convert String to const char*
         users.close();
     } else {
-        Serial.println("Failed to open file for writing");
+        logErrorln("[UserAuth] Failed to open file for writing");
     }
 }
 
@@ -40,15 +40,10 @@ User searchUser(const std::string& username) {
 
     while (users.available()) {
         std::string line = users.readStringUntil('\n').c_str();
-        Serial.println(line.c_str());
         if (line.find((username + ",").c_str()) == 0) { // if the line starts with the username
             size_t commaIndex = line.find(',');
             user.username = line.substr(0, commaIndex);
             user.passwordHash = line.substr(commaIndex + 1,line.length()-commaIndex-2); // remove whitespace
-            /*Serial.print("Found user: ");
-            Serial.print(user.username.c_str());
-            Serial.println(", ");
-            Serial.println(user.passwordHash.c_str());*/
             break;
         }
     }
@@ -70,10 +65,6 @@ std::string hashPassword(const std::string& password) {
         }
         hashedPassword += std::to_string(hash[i]);
     }
-    /*Serial.print("Password: ");
-    Serial.println(password.c_str());
-    Serial.print("Hashed password: ");
-    Serial.println(hashedPassword.c_str());*/
 
     return hashedPassword;
 }
