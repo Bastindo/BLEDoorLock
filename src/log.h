@@ -1,9 +1,9 @@
 #ifndef LOG_H
 #define LOG_H
 
-#define LOG_LEVEL LOG_LEVEL_VERBOSE
-
 #include <ArduinoLog.h>
+
+#include "config.h"
 
 void setupLog();
 

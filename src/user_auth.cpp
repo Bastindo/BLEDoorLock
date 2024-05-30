@@ -1,4 +1,4 @@
-#include "UserAuth.h"
+#include "user_auth.h"
 
 void addUser(const User& user) {
     File users = LittleFS.open("/users.csv", "a");

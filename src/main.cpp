@@ -1,13 +1,12 @@
 #include <Arduino.h>
 
+#include "config.h"
+
 #include "ble_server.h"
 #include "cmd.h"
 #include "log.h"
 #include "servo.h"
-#include "UserAuth.h"
-
-// debug mode waits for serial and adds more commands
-#define DEBUG_MODE 1
+#include "user_auth.h"
 
 void setup() {
   Serial.begin(115200);

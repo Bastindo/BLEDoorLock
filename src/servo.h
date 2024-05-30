@@ -1,10 +1,10 @@
 #ifndef SERVO_H
 #define SERVO_H
 
-#define SERVO_PIN 2
-
 #include <Arduino.h>
 #include <ESP32Servo.h>
+
+#include "config.h"
 
 #include "log.h"
 
