@@ -8,7 +8,7 @@ void addUser(const User& user) {
         users.println(user.passwordHash.c_str()); // Convert String to const char*
         users.close();
     } else {
-        logErrorln("[UserAuth] Failed to open file for writing");
+        logFatalln("[UserAuth] Failed to open file for writing");
     }
 }
 
@@ -81,20 +81,20 @@ bool checkPasswordHash(const std::string& username, const std::string& passwordH
 bool checkAccess(const std::string& username, const std::string& password) {
     User user = searchUser(username);
     if (user.username == "" || user.passwordHash == "") {
-        logErrorln(("[UserAuth] User " + username + " not found").c_str());
+        logAuthln(("[UserAuth] User " + username + " not found").c_str());
         return false;
     }
     if (checkPasswordHash(username, hashPassword(password))) {
-        logErrorln(("[UserAuth] User " + username + " authenticated").c_str());
+        logAuthln(("[UserAuth] User " + username + " authenticated").c_str());
         return true;
     }
-    logErrorln(("[UserAuth] User " + username + " typed wrong password: " + password).c_str());
+    logAuthln(("[UserAuth] User " + username + " typed wrong password: " + password).c_str());
     return false;
 }
 
 void setupUserAuth() {
     if (!LittleFS.begin(true)) {
-        logErrorln("Failed to mount file system");
+        logFatalln("[UserAuth] Failed to mount file system");
         return;
     }
     //LittleFS.remove("/users.csv"); // test, remove later

@@ -25,6 +25,7 @@ void processCommand(char* cmd, bool debugMode) {
     Serial.println("  close - Closes the lock");
     Serial.println("  shortopen - Opens the lock for " + String((float) SHORT_UNLOCK_TIME / 1000) + "s");
     Serial.println("  cat <file> - Displays the contents of a file on the LittleFS");
+    Serial.println("  ls - Lists the files on the LittleFS");
     Serial.println("  adduser <username> <password> - Adds a user to the user database");
     Serial.println("  removeuser <username> - Removes a user from the user database");
     Serial.println("  addadmin <username> <password> - Adds an admin account to the admin database");
@@ -38,6 +39,7 @@ void processCommand(char* cmd, bool debugMode) {
     Serial.println("Available commands:");
     Serial.println("  help - Displays this help message");
     Serial.println("  cat <file> - Displays the contents of a file on the LittleFS");
+    Serial.println("  ls - Lists the files on the LittleFS");
     Serial.println("  adduser <username> <password> - Adds a user to the user database");
     Serial.println("  removeuser <username> - Removes a user from the user database");
     Serial.println("  addadmin <username> <password> - Adds an admin account to the admin database");
@@ -117,6 +119,21 @@ void processCommand(char* cmd, bool debugMode) {
   else if (strncmp(cmd, "removeadmin ", 12) == 0) {
     char* username = cmd + 12;
     removeAdmin(username);
+  }
+  else if (strcmp(cmd, "ls") == 0) {
+    File root = LittleFS.open("/");
+    if (!root ||!root.isDirectory()) {
+      Serial.println("Failed to open root directory");
+      return;
+    }
+
+    File entry = root.openNextFile();
+    while (entry) {
+      Serial.println(entry.name());
+      entry.close();
+      entry = root.openNextFile();
+    }
+    root.close();
   }
   else if (strcmp(cmd, "") == 0) {
     // Do nothing

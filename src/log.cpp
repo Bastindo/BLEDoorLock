@@ -25,7 +25,7 @@ void printLogLevel(Print* _logOutput, int logLevel) {
         default:
         case 0:_logOutput->print("SILENT) " ); break;
         case 1:_logOutput->print("FATAL) "  ); break;
-        case 2:_logOutput->print("ERROR) "  ); break;
+        case 2:_logOutput->print("AUTH) "  ); break;
         case 3:_logOutput->print("WARNING) "); break;
         case 4:_logOutput->print("INFO) "   ); break;
         case 5:_logOutput->print("TRACE) "  ); break;
@@ -61,10 +61,26 @@ void logInfoln(const char* message) {
     Log.notice("%s\r\n", message);
 }
 
-void logError(const char* message) {
+void logWarn(const char* message) {
+    Log.warning("%s", message);
+}
+
+void logWarnln(const char* message) {
+    Log.warning("%s\r\n", message);
+}
+
+void logAuth(const char* message) {
     Log.error("%s", message);
 }
 
-void logErrorln(const char* message) {
+void logAuthln(const char* message) {
     Log.error("%s\r\n", message);
+}
+
+void logFatal(const char* message) {
+    Log.fatal("%s", message);
+}
+
+void logFatalln(const char* message) {
+    Log.fatal("%s\r\n", message);
 }

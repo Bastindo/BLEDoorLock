@@ -8,7 +8,7 @@ void addAdmin(const Admin& admin) {
         admins.println(admin.passwordHash.c_str()); // Convert String to const char*
         admins.close();
     } else {
-        logErrorln("[AdminAuth] Failed to open file for writing");
+        logFatalln("[AdminAuth] Failed to open file for writing");
     }
 }
 
@@ -66,20 +66,20 @@ bool checkAdminPasswordHash(const std::string& username, const std::string& pass
 bool checkAdminAccess(const std::string& username, const std::string& password) {
     Admin admin = searchAdmin(username);
     if (admin.username == "" || admin.passwordHash == "") {
-        logErrorln(("[AdminAuth] Admin " + username + " not found").c_str());
+        logAuthln(("[AdminAuth] Admin " + username + " not found").c_str());
         return false;
     }
     if (checkAdminPasswordHash(username, hashPassword(password))) {
-        logErrorln(("[AdminAuth] Admin " + username + " authenticated").c_str());
+        logAuthln(("[AdminAuth] Admin " + username + " authenticated").c_str());
         return true;
     }
-    logErrorln(("[AdminAuth] Admin " + username + " typed wrong password: " + password).c_str());
+    logAuthln(("[AdminAuth] Admin " + username + " typed wrong password: " + password).c_str());
     return false;
 }
 
 void setupAdminAuth() {
     if (!LittleFS.begin(true)) {
-        logErrorln("Failed to mount file system");
+        logFatalln("[AdminAuth] Failed to mount file system");
         return;
     }
     //LittleFS.remove("/admins.csv"); // test, remove later

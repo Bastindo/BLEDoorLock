@@ -25,17 +25,13 @@ class ServerCallbacks: public NimBLEServerCallbacks {
     void onConnect(NimBLEServer* pServer, ble_gap_conn_desc* desc) {
         logVerboseln(("[BLE Server] Client address: " + String(NimBLEAddress(desc->peer_ota_addr).toString().c_str())).c_str());
         pServer->updateConnParams(desc->conn_handle, 24, 48, 0, 60);
+        logVerboseln("[BLE Server] Updated Connection Params");
     };
 
     void onDisconnect(NimBLEServer *pServer) {
         logInfoln("[BLE Server] Device disconnected");
         NimBLEDevice::startAdvertising();
-    };
-
-    void onMTUChange(uint16_t MTU, ble_gap_conn_desc* desc) {
-        char *logstr; 
-        snprintf(logstr, 60, "[BLE Server] MTU updated: %u for connection ID: %u\n", MTU, desc->conn_handle);
-        logVerboseln(logstr);
+        logVerboseln("[BLE Server] Started advertising after disconnect");
     };
 };
 
@@ -45,7 +41,7 @@ class LockStateCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
         std::string pass = pPassCharacteristic->getValue();
         std::string lockState = pCharacteristic->getValue();
         if (user.length() == 0 || pass.length() == 0 || lockState.length() == 0) {
-            logErrorln("[BLE Server] LockState: Input missing");
+            logWarnln("[BLE Server] LockState: Input missing");
             return;
         }
         
@@ -69,11 +65,11 @@ class LockStateCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
             default:
                 servoClose();
                 pCharacteristic->setValue("0");
-                logErrorln(("[BLE Server] Invalid lock state: " + (String)pCharacteristic->getValue().c_str()).c_str());
+                logWarnln(("[BLE Server] Invalid lock state: " + (String)pCharacteristic->getValue().c_str()).c_str());
                 break;
             }
         } else {
-            logErrorln("[BLE Server] Authentication failed");
+            logWarnln("[BLE Server] Authentication failed");
         }
         return;
     };
@@ -87,7 +83,7 @@ class AdminActionCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
         std::string userpass = pAddPassCharacteristic->getValue();
         std::string action = pCharacteristic->getValue();
         if (admin.length() == 0 || adminpass.length() == 0 || user.length() == 0 || action.length() == 0) {
-            logErrorln("[BLE Server] Admin: Input missing");
+            logWarnln("[BLE Server] Admin: Input missing");
             return;
         }
         
@@ -100,18 +96,18 @@ class AdminActionCharacteristicCallbacks: public NimBLECharacteristicCallbacks {
                 break;
             case 1:
                 if (userpass.length() == 0) {
-                    logErrorln("[BLE Server] Add User: Password missing");
+                    logWarnln("[BLE Server] Add User: Password missing");
                     return;
                 }
                 addUser({user, hashPassword(userpass)});
                 logInfoln(("[BLE Server] User " + user + " added").c_str());
                 break;
             default:
-                logErrorln(("[BLE Server] Invalid action: " + (String)pCharacteristic->getValue().c_str()).c_str());
+                logWarnln(("[BLE Server] Invalid action: " + (String)pCharacteristic->getValue().c_str()).c_str());
                 break;
             }
         } else {
-            logErrorln("[BLE Server] Admin Authentication failed");
+            logWarnln("[BLE Server] Admin Authentication failed");
         }
         return;
     };
@@ -193,20 +189,14 @@ void setupBLE() {
 
     NimBLEAdvertising *pUserAdvertising = NimBLEDevice::getAdvertising();
     pUserAdvertising->addServiceUUID(UUID_USER_SERVICE);
-    logVerbose("[BLE Server] Advertising with User Service UUID: ");
-    logVerboseln(UUID_USER_SERVICE);
+    logVerboseln("[BLE Server] Advertising with User Service UUID: " UUID_USER_SERVICE);
     pUserAdvertising->setScanResponse(true);
-    pUserAdvertising->setMinPreferred(0x06);
-    pUserAdvertising->setMinPreferred(0x12);
     pUserAdvertising->setAppearance(0x0708);    // 0x0708: Door Lock
     pUserAdvertising->start();
     NimBLEAdvertising *pAdminAdvertising = NimBLEDevice::getAdvertising();
     pAdminAdvertising->addServiceUUID(UUID_ADMIN_SERVICE);
-    logVerbose("[BLE Server] Advertising with Admin Service UUID: ");
-    logVerboseln(UUID_ADMIN_SERVICE);
+    logVerboseln("[BLE Server] Advertising with Admin Service UUID: " UUID_ADMIN_SERVICE);
     pAdminAdvertising->setScanResponse(true);
-    pAdminAdvertising->setMinPreferred(0x06);
-    pAdminAdvertising->setMinPreferred(0x12);
     pAdminAdvertising->start();
     logInfoln("[BLE Server] BLE Ready");
 }
