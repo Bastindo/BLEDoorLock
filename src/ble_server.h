@@ -4,11 +4,9 @@
 #include <NimBLEDevice.h>
 
 #include "config.h"
-
 #include "log.h"
 #include "servo.h"
 #include "user_auth.h"
-#include "admin_auth.h"
 
 void setupBLE();
 

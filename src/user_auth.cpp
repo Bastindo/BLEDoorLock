@@ -5,7 +5,10 @@ void addUser(const User& user) {
     if (users) {
         users.print(user.username.c_str());
         users.print(",");
-        users.println(user.passwordHash.c_str()); // Convert String to const char*
+        users.print(user.passwordHash.c_str());  // Convert String to const char*
+        users.print(",");
+        users.print(user.role.c_str());
+        users.println();
         users.close();
     } else {
         logFatalln("[UserAuth] Failed to open file for writing");
@@ -19,7 +22,8 @@ void removeUser(const std::string& username) {
 
     while (users.available()) {
         std::string line = users.readStringUntil('\n').c_str();
-        if (line.find((username + ",").c_str()) != 0) { // if the line does not start with the username
+        if (line.find((username + ",").c_str()) !=
+            0) {  // if the line does not start with the username
             tempFile.println(line.c_str());
         }
     }
@@ -33,17 +37,18 @@ void removeUser(const std::string& username) {
 
 User searchUser(const std::string& username) {
     User user;
-    user.username = "";  // Default empty username
+    user.username = "";      // Default empty username
     user.passwordHash = "";  // Default empty password hash
 
     File users = LittleFS.open("/users.csv", "r");
 
     while (users.available()) {
         std::string line = users.readStringUntil('\n').c_str();
-        if (line.find((username + ",").c_str()) == 0) { // if the line starts with the username
+        if (line.find((username + ",").c_str()) == 0) {  // if the line starts with the username
             size_t commaIndex = line.find(',');
             user.username = line.substr(0, commaIndex);
-            user.passwordHash = line.substr(commaIndex + 1,line.length()-commaIndex-2); // remove whitespace
+            user.passwordHash =
+                line.substr(commaIndex + 1, line.length() - commaIndex - 2);  // remove whitespace
             break;
         }
     }
@@ -59,7 +64,7 @@ std::string hashPassword(const std::string& password) {
     sha3.finalize(hash, sizeof(hash));
 
     std::string hashedPassword = "";
-    for (int i = 0; i < sizeof(hash); i++) {    // Convert byte array to string
+    for (int i = 0; i < sizeof(hash); i++) {  // Convert byte array to string
         if (hash[i] < 0x10) {
             hashedPassword += "0";
         }
@@ -69,13 +74,14 @@ std::string hashPassword(const std::string& password) {
     return hashedPassword;
 }
 
-bool checkPasswordHash(const std::string& username, const std::string& passwordHash) { // Replace String with std::string
+bool checkPasswordHash(const std::string& username,
+                       const std::string& passwordHash) {  // Replace String with std::string
     User user = searchUser(username);
     logVerboseln(("[UserAuth] Checking password hash for user " + username).c_str());
     logVerboseln(("[UserAuth] User password hash: " + user.passwordHash).c_str());
     logVerboseln(("[UserAuth] Input password hash: " + passwordHash).c_str());
     int check = user.passwordHash.compare(passwordHash);
-    return (check==0);
+    return (check == 0);
 }
 
 bool checkAccess(const std::string& username, const std::string& password) {
@@ -97,11 +103,25 @@ void setupUserAuth() {
         logFatalln("[UserAuth] Failed to mount file system");
         return;
     }
-    //LittleFS.remove("/users.csv"); // test, remove later
+    // LittleFS.remove("/users.csv"); // test, remove later
     if (!LittleFS.exists("/users.csv")) {
         File users = LittleFS.open("/users.csv", "w");
         users.close();
     }
-    
-    //addUser(User{"admin", hashPassword("admin")}); // test, remove later
+
+    // addUser(User{"admin", hashPassword("admin")}); // test, remove later
+}
+
+bool checkAdminAccess(const std::string& username, const std::string& password) {
+    User user = searchUser(username);
+    if (user.username == "" || user.passwordHash == "") {
+        logAuthln(("[UserAuth] Admin " + username + " not found").c_str());
+        return false;
+    }
+    if (checkPasswordHash(username, hashPassword(password)) && user.role == UserRole::Admin) {
+        logAuthln(("[UserAuth] Admin " + username + " authenticated").c_str());
+        return true;
+    }
+    logAuthln(("[UserAuth] Admin " + username + " typed wrong password: " + password).c_str());
+    return false;
 }
