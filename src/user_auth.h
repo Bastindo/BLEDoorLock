@@ -19,11 +19,12 @@ struct User {
     std::string role;
 };
 
+bool isValidUsername(const std::string& username);
 void addUser(const User& user);
 void removeUser(const std::string& username);
 User searchUser(const std::string& username);
 std::string hashPassword(const std::string& password);
-bool checkPasswordHash(const std::string& username, const std::string& passwordHash);
+bool checkPasswordHash(const User& user, const std::string& passwordHash);
 bool checkAccess(const std::string& username, const std::string& password);
 bool checkAdminAccess(const std::string& username, const std::string& password);
 void setupUserAuth();

@@ -1,23 +1,19 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-
-
 /* ######## Debug Mode ######## */
 //
-// Debug mode waits for serial connection on boot and provides additional serial commands (open, close, shortopen)
+// Debug mode waits for serial connection on boot and provides additional serial commands (open,
+// close, shortopen)
 #define DEBUG_MODE 1
 //
 
-
-
 /* ######## Logging ######## */
 //
-// Log level (possible options: LOG_LEVEL_{SILENT, FATAL, ERROR, WARNING, INFO, TRACE, VERBOSE}, use ERROR if you only want to log user authentications)
+// Log level (possible options: LOG_LEVEL_{SILENT, FATAL, ERROR, WARNING, INFO, TRACE, VERBOSE}, use
+// ERROR if you only want to log user authentications)
 #define LOG_LEVEL LOG_LEVEL_VERBOSE
 //
-
-
 
 /* ######## Servo ######## */
 //
@@ -25,18 +21,16 @@
 #define SERVO_PIN 2
 //
 
-
-
 /* ######## BLE server ######## */
 //
 // time interval for the Short Unlock function
-#define SHORT_UNLOCK_TIME 10000 // ms
+#define SHORT_UNLOCK_TIME 10000  // ms
 //
 // PIN for bluetooth pairing
 #define BLE_PIN 123456
 //
 // UUIDs (usually shouldn't be changed)
-#define UUID_USER_SERVICE "2ff7c135-5010-497b-a054-cea3984c7cc9" 
+#define UUID_USER_SERVICE "2ff7c135-5010-497b-a054-cea3984c7cc9"
 #define UUID_ADMIN_SERVICE "be527357-c722-4367-aac3-bddef6a6f6e2"
 //
 #define UUID_USER_CHARACTERISTIC "5d3932fa-2901-4b6b-9f41-7720976a85d4"
@@ -50,14 +44,12 @@
 #define UUID_ADMINACTION_CHARACTERISTIC "b1d86fdf-7d5d-49b7-8da7-b02bd53bdb0a"
 //
 
-
-
 /* ######## CMD ######## */
 //
 // usually shouldn't be changed
 #define CMD_BUFFER_SIZE 256
 //
 
-
+#define VALID_USERNAME_CHARACTER "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 
 #endif
