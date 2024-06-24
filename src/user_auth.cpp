@@ -66,7 +66,7 @@ User searchUser(const std::string& username) {
     while (users.available()) {
         line = users.readStringUntil('\n').c_str();
         commaIndex1 = line.find(',');
-        logVerboseln(("[UserAuth::searchUser] Parse line: " + line).c_str());
+        // logVerboseln(("[UserAuth::searchUser] Parse line: " + line).c_str());
         if (commaIndex1 == std::string::npos) {
             continue;
         }
@@ -88,9 +88,11 @@ User searchUser(const std::string& username) {
         }
 
         // Serial log
+        /*
         logVerboseln(("Username: " + user.username).c_str());
         logVerboseln(("Password Hash: " + user.passwordHash).c_str());
         logVerboseln(("Role: " + user.role).c_str());
+        */
     }
 
     users.close();
