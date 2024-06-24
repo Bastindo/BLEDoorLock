@@ -64,33 +64,33 @@ User searchUser(const std::string& username) {
     size_t commaIndex1;
 
     while (users.available()) {
-        commaIndex1 = line.find(',');
         line = users.readStringUntil('\n').c_str();
+        commaIndex1 = line.find(',');
+        logVerboseln(("[UserAuth::searchUser] Parse line: " + line).c_str());
         if (commaIndex1 == std::string::npos) {
             continue;
         }
-        user.username = line.substr(0, commaIndex1 - 1);
+        user.username = line.substr(0, commaIndex1);
         if (user.username == username) {
             size_t commaIndex2 = line.find(',', commaIndex1 + 1);
             if (commaIndex2 == std::string::npos) {
                 logVerboseln(("[UserAuth::searchUser] Parse old format of: " + line).c_str());
-                user.passwordHash = line.substr(commaIndex1, line.length() - commaIndex1);
+                user.passwordHash = line.substr(commaIndex1 + 1, line.length() - commaIndex1 - 1);
                 size_t endIndex = user.passwordHash.find('\r');
                 user.passwordHash = user.passwordHash.substr(0, endIndex);
                 user.role = UserRole::User;
             } else {
                 logVerboseln(("[UserAuth::searchUser] Parse new format of: " + line).c_str());
-                user.passwordHash = line.substr(commaIndex1, commaIndex2 - commaIndex1);
+                user.passwordHash = line.substr(commaIndex1 + 1, commaIndex2 - commaIndex1 - 1);
                 user.role = line.substr(commaIndex2 + 1, line.length() - commaIndex2 - 1);
             }
             break;
         }
-        /*
+
         // Serial log
         logVerboseln(("Username: " + user.username).c_str());
         logVerboseln(("Password Hash: " + user.passwordHash).c_str());
         logVerboseln(("Role: " + user.role).c_str());
-        */
     }
 
     users.close();
