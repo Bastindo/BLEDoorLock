@@ -11,7 +11,8 @@ void addUser(const User& user) {
     Serial.print("Validate username");
     if (!isValidUsername(user.username)) {
         logFatalln(
-            "[UserAuth] Username is not supported. Please only use the following characters: "
+            "[UserAuth::addUser] Username is not supported. Please only use the following "
+            "characters: "
             "\"" VALID_USERNAME_CHARACTER "\"");
         return;
     }
@@ -24,7 +25,7 @@ void addUser(const User& user) {
         users.println();
         users.close();
     } else {
-        logFatalln("[UserAuth] Failed to open file for writing");
+        logFatalln("[UserAuth::addUser] Failed to open file for writing");
     }
 }
 
@@ -72,34 +73,24 @@ User searchUser(const std::string& username) {
         if (user.username == username) {
             size_t commaIndex2 = line.find(',', commaIndex1 + 1);
             if (commaIndex2 == std::string::npos) {
-                Serial.println("Parse old format of: ");
-                Serial.println(line.c_str());
-                user.passwordHash = line.substr(commaIndex1, line.length() - commaIndex1 - 6);
+                logVerboseln(("[UserAuth::searchUser] Parse old format of: " + line).c_str());
+                user.passwordHash = line.substr(commaIndex1, line.length() - commaIndex1);
+                size_t endIndex = user.passwordHash.find('\r');
+                user.passwordHash = user.passwordHash.substr(0, endIndex);
                 user.role = UserRole::User;
             } else {
-                Serial.println("Parse new format");
-                Serial.println(line.c_str());
+                logVerboseln(("[UserAuth::searchUser] Parse new format of: " + line).c_str());
                 user.passwordHash = line.substr(commaIndex1, commaIndex2 - commaIndex1);
                 user.role = line.substr(commaIndex2 + 1, line.length() - commaIndex2 - 1);
             }
             break;
         }
-
+        /*
         // Serial log
-        Serial.print("Username: ");
-        Serial.println(user.username.c_str());
-        Serial.print("Password Hash: ");
-        Serial.println(user.passwordHash.c_str());
-        Serial.print("Role: ");
-        Serial.println(user.role.c_str());
-        // if (line.find((username + ",").c_str()) == 0) {  // if the line starts with the username
-        //     size_t commaIndex = line.find(',');
-        //     user.username = line.substr(0, commaIndex);
-        //     user.passwordHash =
-        //         line.substr(commaIndex + 1, line.length() - commaIndex - 2);  // remove
-        //         whitespace
-        //     break;
-        // }
+        logVerboseln(("Username: " + user.username).c_str());
+        logVerboseln(("Password Hash: " + user.passwordHash).c_str());
+        logVerboseln(("Role: " + user.role).c_str());
+        */
     }
 
     users.close();
@@ -126,9 +117,13 @@ std::string hashPassword(const std::string& password) {
 
 bool checkPasswordHash(const User& user,
                        const std::string& passwordHash) {  // Replace String with std::string
-    logVerboseln(("[UserAuth] Checking password hash for user " + user.username).c_str());
-    logVerboseln(("[UserAuth]  User password hash: \"" + user.passwordHash + "\"").c_str());
-    logVerboseln(("[UserAuth] Input password hash: \"" + passwordHash + "\"").c_str());
+    logVerboseln(
+        ("[UserAuth::checkPasswordHash] Checking password hash for user " + user.username).c_str());
+    logVerboseln(
+        ("[UserAuth::checkPasswordHash]  User password hash: \"" + user.passwordHash + "\"")
+            .c_str());
+    logVerboseln(
+        ("[UserAuth::checkPasswordHash] Input password hash: \"" + passwordHash + "\"").c_str());
     int check = user.passwordHash.compare(passwordHash);
     return (check == 0);
 }
@@ -136,23 +131,20 @@ bool checkPasswordHash(const User& user,
 bool checkAccess(const std::string& username, const std::string& password) {
     User user = searchUser(username);
     if (user.username == "" || user.passwordHash == "") {
-        logAuthln(("[UserAuth] User " + username + " not found").c_str());
+        logAuthln(("[UserAuth::checkAcces] User " + username + " not found").c_str());
         return false;
     }
-    Serial.println("Test OwO1");
     if (checkPasswordHash(user, hashPassword(password))) {
-        logAuthln(("[UserAuth] User " + username + " authenticated").c_str());
+        logAuthln(("[UserAuth::checkAcces] User " + username + " authenticated").c_str());
         return true;
     }
-    Serial.println("Test OwO2");
-    logAuthln(("[UserAuth] User " + username + " typed wrong password").c_str());
-    Serial.println("Test OwO3");
+    logAuthln(("[UserAuth::checkAcces] User " + username + " typed wrong password").c_str());
     return false;
 }
 
 void setupUserAuth() {
     if (!LittleFS.begin(true)) {
-        logFatalln("[UserAuth] Failed to mount file system");
+        logFatalln("[UserAuth::setupUserAuth] Failed to mount file system");
         return;
     }
     // LittleFS.remove("/users.csv"); // test, remove later
@@ -167,13 +159,15 @@ void setupUserAuth() {
 bool checkAdminAccess(const std::string& username, const std::string& password) {
     User user = searchUser(username);
     if (user.username == "" || user.passwordHash == "") {
-        logAuthln(("[UserAuth] Admin " + username + " not found").c_str());
+        logAuthln(("[UserAuth::checkAdminAccess] Admin " + username + " not found").c_str());
         return false;
     }
     if (checkPasswordHash(user, hashPassword(password)) && user.role == UserRole::Admin) {
-        logAuthln(("[UserAuth] Admin " + username + " authenticated").c_str());
+        logAuthln(("[UserAuth::checkAdminAccess] Admin " + username + " authenticated").c_str());
         return true;
     }
-    logAuthln(("[UserAuth] Admin " + username + " typed wrong password: " + password).c_str());
+    logAuthln(
+        ("[UserAuth::checkAdminAccess] Admin " + username + " typed wrong password: " + password)
+            .c_str());
     return false;
 }
