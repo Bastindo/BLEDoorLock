@@ -50,6 +50,7 @@ void processCommand(char* cmd, bool debugMode) {
         Serial.println("  hashpassword <password> - Hashes a password");
         Serial.println("  sysinfo - Displays system information");
         Serial.println("  reboot - Reboots the device");
+        Serial.println("  rm - Removes a file from the LittleFS");
     } else if (strcmp(cmd, "open") == 0 && debugMode) {
         servoOpen();
     } else if (strcmp(cmd, "close") == 0 && debugMode) {
@@ -125,6 +126,22 @@ void processCommand(char* cmd, bool debugMode) {
             entry = root.openNextFile();
         }
         root.close();
+    } else if (strncmp(cmd, "rm ", 3) == 0) {
+        char* filename = cmd + 3;
+
+        // add "/" to filename if it doesn't start with it
+        if (filename[0] != '/') {
+            char temp[CMD_BUFFER_SIZE];
+            strcpy(temp, "/");
+            strcat(temp, filename);
+            strcpy(filename, temp);
+        }
+
+        if (LittleFS.remove(filename)) {
+            Serial.println("Removed file: " + String(filename));
+        } else {
+            Serial.println("Failed to remove file: " + String(filename));
+        }
     } else if (strcmp(cmd, "") == 0) {
         // Do nothing
     } else {

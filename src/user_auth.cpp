@@ -10,7 +10,7 @@ void addUser(const User& user) {
     File users = LittleFS.open("/users.csv", "a");
     Serial.print("Validate username");
     if (!isValidUsername(user.username)) {
-        logFatalln(
+        Serial.println(
             "[UserAuth::addUser] Username is not supported. Please only use the following "
             "characters: "
             "\"" VALID_USERNAME_CHARACTER "\"");
@@ -57,10 +57,16 @@ User searchUser(const std::string& username) {
     User user;
     user.username = "";      // Default empty username
     user.passwordHash = "";  // Default empty password hash
-
-    File users = LittleFS.open("/users.csv", "r");
+    user.role = UserRole::User;
 
     std::string line;
+
+    const char* filename = "/users.csv";
+
+    logVerboseln(("[UserAuth::searchUser] Searching for user: " + username).c_str());
+    File users = LittleFS.open(filename, "r");  // Programm seems to crash at this point
+    logVerboseln(("[UserAuth::searchUser] File opened: " + String(filename)).c_str());
+
     size_t commaIndex1;
 
     while (users.available()) {
@@ -83,6 +89,8 @@ User searchUser(const std::string& username) {
                 logVerboseln(("[UserAuth::searchUser] Parse new format of: " + line).c_str());
                 user.passwordHash = line.substr(commaIndex1 + 1, commaIndex2 - commaIndex1 - 1);
                 user.role = line.substr(commaIndex2 + 1, line.length() - commaIndex2 - 1);
+                size_t endIndex = user.role.find('\r');
+                user.role = user.role.substr(0, endIndex);
             }
             break;
         }
@@ -94,6 +102,10 @@ User searchUser(const std::string& username) {
         logVerboseln(("Role: " + user.role).c_str());
         */
     }
+
+    logVerboseln(("Username: " + user.username).c_str());
+    logVerboseln(("Password Hash: " + user.passwordHash).c_str());
+    logVerboseln(("Role: " + user.role).c_str());
 
     users.close();
     // Serial log
@@ -158,18 +170,35 @@ void setupUserAuth() {
     // addUser(User{"admin", hashPassword("admin")}); // test, remove later
 }
 
-bool checkAdminAccess(const std::string& username, const std::string& password) {
-    User user = searchUser(username);
-    if (user.username == "" || user.passwordHash == "") {
-        logAuthln(("[UserAuth::checkAdminAccess] Admin " + username + " not found").c_str());
-        return false;
-    }
-    if (checkPasswordHash(user, hashPassword(password)) && user.role == UserRole::Admin) {
-        logAuthln(("[UserAuth::checkAdminAccess] Admin " + username + " authenticated").c_str());
+bool isAdmin(const User& user) {
+    logVerboseln(("[UserAuth::isAdmin] User role: \"" + user.role + "\"").c_str());
+    logVerboseln(("[UserAuth::isAdmin] Admin role: \"" + UserRole::Admin + "\"").c_str());
+    if (user.role.compare(UserRole::Admin) == 0) {
+        logVerbose("[UserAuth::isAdmin] User is an admin");
         return true;
     }
-    logAuthln(
-        ("[UserAuth::checkAdminAccess] Admin " + username + " typed wrong password: " + password)
-            .c_str());
-    return false;
+    return user.role.compare(UserRole::Admin) == 0;
+}
+
+bool checkAdminAccess(const std::string& username, const std::string& password) {
+    logAuthln("[UserAuth::checkAdminAccess] begin authentication");
+    User user = searchUser(username);
+
+    if (user.username == "" || user.passwordHash == "") {
+        logAuthln(("[UserAuth::checkAdminAccess] User " + username + " not found").c_str());
+        return false;
+    }
+    logAuthln(("[UserAuth::checkAdminAccess] User " + username + " found").c_str());
+    if (!checkPasswordHash(user, hashPassword(password))) {
+        logAuthln(
+            ("[UserAuth::checkAdminAccess] User " + username + " typed wrong password").c_str());
+        return false;
+    }
+    logAuthln(("[UserAuth::checkAdminAccess] User " + username + " authenticated").c_str());
+    if (!isAdmin(user)) {
+        logAuthln(("[UserAuth::checkAdminAccess] User " + username + " is not an admin").c_str());
+        return false;
+    }
+    logAuthln(("[UserAuth::checkAdminAccess] User " + username + " is an admin").c_str());
+    return true;
 }

@@ -27,6 +27,7 @@ std::string hashPassword(const std::string& password);
 bool checkPasswordHash(const User& user, const std::string& passwordHash);
 bool checkAccess(const std::string& username, const std::string& password);
 bool checkAdminAccess(const std::string& username, const std::string& password);
+bool isAdmin(const User& user);
 void setupUserAuth();
 
 #endif  // USER_AUTH_H
