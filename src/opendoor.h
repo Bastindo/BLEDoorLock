@@ -3,9 +3,13 @@
 
 #include "servo.h"
 #include "relay.h"
+#include "log.h"
+#include "config.h"
+#include "ble_server.h"
+
 
 void setupOpener();
-void doorOpen();
-void doorClose();
+LockState getLockState();
+void setLockState(LockState state);
 
 #endif

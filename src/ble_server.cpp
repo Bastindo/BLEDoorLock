@@ -1,5 +1,7 @@
 #include "ble_server.h"
 
+#include "opendoor.h"
+
 NimBLECharacteristic *pUserCharacteristic;
 NimBLECharacteristic *pPassCharacteristic;
 NimBLECharacteristic *pLockStateCharacteristic;
@@ -8,13 +10,6 @@ NimBLECharacteristic *pAdminPassCharacteristic;
 NimBLECharacteristic *pAddUserCharacteristic;
 NimBLECharacteristic *pAddPassCharacteristic;
 NimBLECharacteristic *pAdminActionCharacteristic;
-
-hw_timer_t *lockTimer = NULL;
-
-void IRAM_ATTR lockTimerISR() {
-    servoClose();
-    pLockStateCharacteristic->setValue("0");
-}
 
 class ServerCallbacks : public NimBLEServerCallbacks {
     void onConnect(NimBLEServer *pServer) {
@@ -54,20 +49,19 @@ class LockStateCharacteristicCallbacks : public NimBLECharacteristicCallbacks {
                              .c_str());
             switch (atoi(lockState.c_str())) {
                 case 0:
-                    doorClose();
+                    setLockState(LOCKED);
                     logVerboseln("[BLE Server] Lock closed");
                     break;
                 case 1:
-                    doorOpen();
+                    setLockState(UNLOCKED);
                     logVerboseln("[BLE Server] Lock opened");
                     break;
                 case 2:  // short open
-                    doorOpen();
-                    timerAlarmEnable(lockTimer);
+                    setLockState(SHORT_UNLOCK);
                     logVerboseln("[BLE Server] Lock short opened");
                     break;
                 default:
-                    doorClose();
+                    setLockState(LOCKED);
                     pCharacteristic->setValue("0");
                     logWarnln(("[BLE Server] Invalid lock state: " +
                                (String)pCharacteristic->getValue().c_str())
@@ -163,11 +157,6 @@ void setupBLE() {
     pAdminActionCharacteristic = pAdminService->createCharacteristic(
         UUID_ADMINACTION_CHARACTERISTIC, NIMBLE_PROPERTY::WRITE);
 
-    // Short Lock Timer
-    lockTimer = timerBegin(0, 16000, true);  // 16 Mhz clock / 16000 -> 1ms timer
-    timerAttachInterrupt(lockTimer, &lockTimerISR, true);
-    timerAlarmWrite(lockTimer, SHORT_UNLOCK_TIME, false);
-
     pUserService->start();
     pLockStateCharacteristic->setValue("not initialized");
     pLockStateCharacteristic->setCallbacks(new LockStateCharacteristicCallbacks());
@@ -186,4 +175,21 @@ void setupBLE() {
     pAdminAdvertising->setScanResponse(true);
     pAdminAdvertising->start();
     logInfoln("[BLE Server] BLE Ready");
+}
+
+void setLockStateFromBLE(LockState state) {
+    switch (state) {
+        case LOCKED:
+            pLockStateCharacteristic->setValue("0");
+            break;
+        case UNLOCKED:
+            pLockStateCharacteristic->setValue("1");
+            break;
+        case SHORT_UNLOCK:
+            pLockStateCharacteristic->setValue("2");
+            break;
+        default:
+            pLockStateCharacteristic->setValue("0");
+            break;
+    }
 }

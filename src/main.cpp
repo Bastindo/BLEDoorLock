@@ -10,7 +10,6 @@
 
 void setup() {
   Serial.begin(115200);
-
   #if DEBUG_MODE == 1
     while(!Serial && !Serial.available()){}
   #endif
@@ -18,6 +17,9 @@ void setup() {
   setupLog();
 
   logInfoln("Starting up...");
+  uint32_t freq = getCpuFrequencyMhz();
+  String freqString = "CPU Frequency: " + String(freq) + "MHz\n";
+  logInfo(freqString.c_str());
 
   setupOpener();
   setupBLE();

@@ -53,4 +53,14 @@
 
 #define VALID_USERNAME_CHARACTER "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 
+/* ######## LockState ######## */
+
+// Enum for the lock state
+// do not change the values of the enum!
+enum LockState {
+    LOCKED = 0,
+    UNLOCKED = 1,
+    SHORT_UNLOCK = 2
+};
+
 #endif

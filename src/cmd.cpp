@@ -52,13 +52,11 @@ void processCommand(char* cmd, bool debugMode) {
         Serial.println("  reboot - Reboots the device");
         Serial.println("  rm - Removes a file from the LittleFS");
     } else if (strcmp(cmd, "open") == 0 && debugMode) {
-        doorOpen();
+        setLockState(UNLOCKED);
     } else if (strcmp(cmd, "close") == 0 && debugMode) {
-        doorClose();
+        setLockState(LOCKED);
     } else if (strcmp(cmd, "shortopen") == 0 && debugMode) {
-        doorOpen();
-        delay(SHORT_UNLOCK_TIME);
-        doorClose();
+        setLockState(SHORT_UNLOCK);
     } else if (strncmp(cmd, "cat ", 4) == 0) {
         char* filename = cmd + 4;
 

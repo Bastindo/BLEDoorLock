@@ -9,5 +9,6 @@
 #include "user_auth.h"
 
 void setupBLE();
+void setLockStateFromBLE(LockState state);
 
 #endif
