@@ -54,20 +54,20 @@ class LockStateCharacteristicCallbacks : public NimBLECharacteristicCallbacks {
                              .c_str());
             switch (atoi(lockState.c_str())) {
                 case 0:
-                    servoClose();
+                    doorClose();
                     logVerboseln("[BLE Server] Lock closed");
                     break;
                 case 1:
-                    servoOpen();
+                    doorOpen();
                     logVerboseln("[BLE Server] Lock opened");
                     break;
                 case 2:  // short open
-                    servoOpen();
+                    doorOpen();
                     timerAlarmEnable(lockTimer);
                     logVerboseln("[BLE Server] Lock short opened");
                     break;
                 default:
-                    servoClose();
+                    doorClose();
                     pCharacteristic->setValue("0");
                     logWarnln(("[BLE Server] Invalid lock state: " +
                                (String)pCharacteristic->getValue().c_str())

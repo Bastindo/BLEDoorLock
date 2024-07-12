@@ -5,7 +5,7 @@
 
 #include "config.h"
 #include "log.h"
-#include "servo.h"
+#include "opendoor.h"
 #include "user_auth.h"
 
 void setupBLE();
