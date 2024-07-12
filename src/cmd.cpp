@@ -35,7 +35,7 @@ void processCommand(char* cmd, bool debugMode) {
         Serial.println("  hashpassword <password> - Hashes a password");
         Serial.println("  sysinfo - Displays system information");
         Serial.println("  reboot - Reboots the device");
-
+        Serial.println("  rm - Removes a file from the LittleFS");
     } else if (strcmp(cmd, "help") == 0 && !debugMode) {
         Serial.println("Available commands:");
         Serial.println("  help - Displays this help message");
