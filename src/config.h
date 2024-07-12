@@ -23,6 +23,7 @@
 //
 // Connect servo PWM line to the GPIO pin configured here (2 corresponds to D2)
 #define SERVO_PIN 2
+#define RELAY_PIN 3
 //
 
 
@@ -30,7 +31,7 @@
 /* ######## BLE server ######## */
 //
 // time interval for the Short Unlock function
-#define SHORT_UNLOCK_TIME 10000 // ms
+#define SHORT_UNLOCK_TIME 1000 // ms
 //
 // PIN for bluetooth pairing
 #define BLE_PIN 123456

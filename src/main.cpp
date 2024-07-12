@@ -5,7 +5,7 @@
 #include "ble_server.h"
 #include "cmd.h"
 #include "log.h"
-#include "servo.h"
+#include "opendoor.h"
 #include "user_auth.h"
 
 void setup() {
@@ -19,7 +19,7 @@ void setup() {
 
   logInfoln("Starting up...");
 
-  setupServo();
+  setupOpener();
   setupBLE();
   setupUserAuth();
   setupCmd();
