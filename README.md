@@ -28,8 +28,11 @@ To do so, follow this tutorial: https://docs.arduino.cc/tutorials/nano-esp32/spi
 After that (or if you've done the filesystem part already) run `pio run -t upload` to flash the firmware image to your device.
 
 ## Usage
-### Hardware setup
+### Hardware setup servo
 Connect your servo PWM pin (yellow/orange wire) to the D2 pin on the Arduino. This pin can be configured in `src/config.h`. The servo also needs connections to 5V VCC and GND. You can use the VBUS and GND pins on the Arduino for this.
+### Hardware setup relay
+Connect your relay s pin to the D2 pin on the Arduino. This pin can be configured in `src/config.h`. The relay also needs connections to 3.3V or 5V VCC (see your relay specification) and GND. You can use the 3.3V or VBUS and GND pins on the Arduino for this.
+
 ### BLE
 You can use the "nRF Connect" app on your phone to talk to the door lock. To pair the device, you will need a PIN. The default PIN is 123456, but it can be changed in `src/config.h`.
 
