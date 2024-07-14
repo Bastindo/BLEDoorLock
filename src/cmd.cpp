@@ -51,6 +51,7 @@ void processCommand(char* cmd, bool debugMode) {
         Serial.println("  sysinfo - Displays system information");
         Serial.println("  reboot - Reboots the device");
         Serial.println("  rm - Removes a file from the LittleFS");
+        Serial.println("  ping - Returns 'pong'");
     } else if (strcmp(cmd, "open") == 0 && debugMode) {
         setLockState(UNLOCKED);
     } else if (strcmp(cmd, "close") == 0 && debugMode) {
@@ -140,6 +141,8 @@ void processCommand(char* cmd, bool debugMode) {
         } else {
             Serial.println("Failed to remove file: " + String(filename));
         }
+    } else if (strcmp(cmd, "ping") == 0) {
+        Serial.println("pong");
     } else if (strcmp(cmd, "") == 0) {
         // Do nothing
     } else {
