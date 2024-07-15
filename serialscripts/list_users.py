@@ -22,4 +22,4 @@ def list_users():
 
 if __name__ == "__main__":
     users = list_users()
-    print(f"Users: {[str(f"{user.username}:{user.role}") for user in users]}")
+    print(f"Users: {[str(f'{user.username}:{user.role}') for user in users]}")

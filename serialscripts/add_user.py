@@ -1,21 +1,19 @@
-import serial
-import time
-from dotenv import load_dotenv
 import os
+import sys
 import random
 import string
 import json
 import qrcode
 import tempfile
+from dotenv import load_dotenv
 from list_users import list_users
-from user import User
-import subprocess
 from send_command import send_command
+from PIL import Image
+import matplotlib.pyplot as plt
 
 # Load environment variables from .env file
 load_dotenv()
 
- # Replace with your actual baud rate
 LOCK_ID = os.getenv('LOCK_ID', 'default_lock_id')  # Replace with your actual lock ID
 DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
 
@@ -59,26 +57,27 @@ def add_user(username):
         
         print("QR Code generated.")
         
-        # Display the QR code image
-        if os.name == 'posix':  # For Unix-like systems
-            subprocess.run(['xdg-open', qr_code_file])
-        elif os.name == 'nt':  # For Windows
-            os.startfile(qr_code_file)
-        else:
-            print(f"Please open the QR code image manually: {qr_code_file}")
-
-        # Wait for the user to close the image viewer
-        input("Press Enter after scanning the QR code to delete the file...")
-        
-        # Delete the QR code file
-        os.remove(qr_code_file)
-        print("QR Code file deleted.")
+        try:
+            # Display the QR code image using Pillow and matplotlib
+            img = Image.open(qr_code_file)
+            plt.imshow(img)
+            plt.axis('off')
+            plt.show()
+            
+            # Wait for the user to close the image viewer
+            
+            #input("Press Enter after scanning the QR code to delete the file...")
+        except Exception as e:
+            print(f"Error displaying QR code: {e}")
+        finally:
+            # Delete the QR code file
+            os.remove(qr_code_file)
+            print("QR Code file deleted.")
 
 def main(username):
     add_user(username)
 
 if __name__ == "__main__":
-    import sys
     if len(sys.argv) != 2:
         print("Usage: python add_user.py <username>")
         sys.exit(1)
