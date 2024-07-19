@@ -86,6 +86,9 @@ The firmware provides a command shell and a log on the USB serial interface.
 This can be used to add or remove admin or user accounts and debug various stuff.
 Type `help` in the serial console to see a list of commands.
 
+### [Serialscripts](serialscripts/README.md)
+Scripts to manage users, and generate QR-Codes for the [APP](https://github.com/UwUTastisch/BLEDoorLock-App).
+
 ### Serial examples
 Add a new admin account:
 ```
