@@ -10,7 +10,6 @@ void doorClose() {
     relayClose();
 }
 
-
 hw_timer_t *lockTimer = NULL;
 LockState lockState = LOCKED;
 
@@ -22,7 +21,7 @@ void IRAM_ATTR lockTimerISR() {
 void setupLockTimer() {
     Serial.println("Setting up lock timer");
     // Short Lock Timer
-    lockTimer = timerBegin(0, getCpuFrequencyMhz()*1000, true);
+    lockTimer = timerBegin(0, getCpuFrequencyMhz() * 1000, true);
     timerAttachInterrupt(lockTimer, &lockTimerISR, true);
     timerAlarmWrite(lockTimer, SHORT_UNLOCK_TIME, false);
 }

@@ -3,6 +3,8 @@
 
 #include <NimBLEDevice.h>
 
+#include <queue>
+
 #include "config.h"
 #include "log.h"
 #include "opendoor.h"
@@ -10,5 +12,7 @@
 
 void setupBLE();
 void setLockStateFromBLE(LockState state);
+void delayDisconnectClientDelayed(uint16_t conn_handle);
+void popClientConnection();
 
 #endif

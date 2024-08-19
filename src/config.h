@@ -23,12 +23,17 @@
 //
 
 /* ######## BLE server ######## */
+// BLE name
+#define BLE_NAME "NimBLE Servo Lock 3"
 //
 // time interval for the Short Unlock function
-#define SHORT_UNLOCK_TIME 1000 // ms
+#define SHORT_UNLOCK_TIME 1000  // ms
 //
 // PIN for bluetooth pairing
 #define BLE_PIN 123456
+//
+// Logout time in ms
+#define LOGOUT_TIME 12000
 //
 // UUIDs (usually shouldn't be changed)
 #define UUID_USER_SERVICE "2ff7c135-5010-497b-a054-cea3984c7cc9"
@@ -57,10 +62,6 @@
 
 // Enum for the lock state
 // do not change the values of the enum!
-enum LockState {
-    LOCKED = 0,
-    UNLOCKED = 1,
-    SHORT_UNLOCK = 2
-};
+enum LockState { LOCKED = 0, UNLOCKED = 1, SHORT_UNLOCK = 2 };
 
 #endif
