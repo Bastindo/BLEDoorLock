@@ -12,7 +12,5 @@
 
 void setupBLE();
 void setLockStateFromBLE(LockState state);
-void delayDisconnectClientDelayed(uint16_t conn_handle);
-void popClientConnection();
 
 #endif

@@ -10,122 +10,30 @@ NimBLECharacteristic *pAdminPassCharacteristic;
 NimBLECharacteristic *pAddUserCharacteristic;
 NimBLECharacteristic *pAddPassCharacteristic;
 NimBLECharacteristic *pAdminActionCharacteristic;
+
 struct ClientConnection {
     uint16_t conn_handle;
-    uint64_t join_time;
     NimBLEServer *pServer;
 };
 
 std::queue<ClientConnection> clientQueue;
 
-hw_timer_t *logoutTimer = NULL;
-
-void nextLogoutTimer() {
-    if (clientQueue.empty()) {
-        Serial.println("No further clients to disconnect");
-        return;
-    }
-    ClientConnection client = clientQueue.front();
-    if (client.join_time + LOGOUT_TIME - 100 < timerReadMilis(logoutTimer)) {
-        logVerboseln("[BLE Server] Next logout timer already expired");
-        popClientConnection();
-    } else {
-        timerAlarmWrite(logoutTimer, client.join_time + LOGOUT_TIME, false);
-        timerAlarmEnable(logoutTimer);
-        logVerboseln("[BLE Server] Next logout timer set");
-    }
+void addClientConnection(uint16_t conn_handle, NimBLEServer *pServer) {
+    clientQueue.push({conn_handle, pServer});
 }
 
 void popClientConnection() {
-    if (clientQueue.empty()) {
-        Serial.println("No clients to disconnect");
-        return;
-    }
-    ClientConnection client = clientQueue.front();
-
     clientQueue.pop();
-    logVerboseln(("[BLE Server] Disconnecting client: " + String(client.conn_handle)).c_str());
-    NimBLEServer *server = client.pServer;
+}
 
-    if (server == nullptr) {
-        logWarnln("[BLE Server] Server is null");
-        return;
-    } else {
-        logVerboseln("[BLE Server] Server is not null");
-        logVerboseln(
-            ("[BLE Server] Number of connected devices: " + String(server->getConnectedCount()))
-                .c_str());
-        server->disconnect(client.conn_handle);
+void killClientConnection() {
+    if (!clientQueue.empty()) {
+        logInfoln("[BLE Server] Killing client connection");
+        NimBLEServer *pServer = clientQueue.front().pServer;
+        pServer->disconnect(clientQueue.front().conn_handle);
+        popClientConnection();
     }
-    // NimBLEDevice::getServer()->disconnect(client.conn_handle, 0);
-    // NimBLEConnInfo conn = NimBLEDevice::getServer()->getPeerIDInfo(client.conn_handle);
-    // logVerboseln(("[BLE Server] Disconnecting client: " + String(conn.getAddress())).c_str());
-    logVerboseln("[BLE Server] Disconnected client");
-    nextLogoutTimer();
 }
-
-void pushClientConnection(uint16_t conn_handle, NimBLEServer *pServer) {
-    // use time from logoutTime
-    ClientConnection client = {conn_handle, timerReadMilis(logoutTimer), pServer};
-    logVerboseln(("[BLE Server] Adding client: " + String(client.conn_handle) + " at " +
-                  String(client.join_time))
-                     .c_str());
-    clientQueue.push(client);
-    if (clientQueue.size() == 1) {
-        nextLogoutTimer();
-    };
-}
-
-void logoutTimerISR() {
-    Serial.println("Logout timer expired");
-
-    popClientConnection();
-}
-
-void setupLogoutTimer() {
-    Serial.println("Setting up Logout timer");
-    // Short logout Timer
-    logoutTimer = timerBegin(1, getCpuFrequencyMhz() * 1000, true);
-    timerAttachInterrupt(logoutTimer, &logoutTimerISR, true);
-    // timerAlarmWrite(logoutTimer, 2000, false);
-}
-
-void delayDisconnectClientDelayed(uint16_t conn_handle, NimBLEServer *pServer) {
-    logVerboseln("[BLE Server] Starting logout timer");
-    pushClientConnection(conn_handle, pServer);
-}
-
-/*
-void disconnectClients() {
-    std::vector<uint16_t> connections = NimBLEDevice::getServer()->getPeerDevices();
-    for (uint16_t conn_handle : connections) {
-        logVerboseln(("[BLE Server] Disconnecting client: " + String(conn_handle)).c_str());
-        NimBLEDevice::getServer()->disconnect(conn_handle);
-    }
-    logVerboseln("[BLE Server] Disconnected clients");
-}
-
-
-void IRAM_ATTR logoutTimerISR() {
-    Serial.println("Logout timer expired");
-    disconnectClients();
-}
-
-void setupLogoutTimer() {
-    Serial.println("Setting up Logout timer");
-    // Short logout Timer
-    logoutTimer = timerBegin(1, getCpuFrequencyMhz() * 1000, true);
-    timerAttachInterrupt(logoutTimer, &logoutTimerISR, true);
-    timerAlarmWrite(logoutTimer, 2000, false);
-}
-
-void asyncDisconnectClientDelayed() {
-    logVerboseln("[BLE Server] Starting logout timer");
-    logVerbose(("[BLE Server] Timer value: " + String(timerAlarmRead(logoutTimer))).c_str());
-
-    timerAlarmEnable(logoutTimer);
-    timerWrite(logoutTimer, 0);
-}*/
 
 class ServerCallbacks : public NimBLEServerCallbacks {
     void onConnect(NimBLEServer *pServer) {
@@ -138,7 +46,7 @@ class ServerCallbacks : public NimBLEServerCallbacks {
                       String(NimBLEAddress(desc->peer_ota_addr).toString().c_str()))
                          .c_str());
         pServer->updateConnParams(desc->conn_handle, 24, 48, 0, 60);
-        delayDisconnectClientDelayed(desc->conn_handle, pServer);
+        addClientConnection(desc->conn_handle, pServer);
         logVerboseln("[BLE Server] Updated Connection Params");
     };
 
@@ -170,6 +78,7 @@ class LockStateCharacteristicCallbacks : public NimBLECharacteristicCallbacks {
             logVerboseln(("[BLE Server] Lock State Characteristic Value: " +
                           (String)pCharacteristic->getValue().c_str())
                              .c_str());
+            killClientConnection();
             switch (atoi(lockState.c_str())) {
                 case 0:
                     setLockState(LOCKED);
@@ -220,6 +129,7 @@ class AdminActionCharacteristicCallbacks : public NimBLECharacteristicCallbacks 
 
         if (checkAdminAccess(adminName, adminpass)) {
             logInfoln("[BLE Server] Admin Authentication successful");
+            killClientConnection();
             switch (atoi(action.c_str())) {
                 case 0:
                     removeUser(user);
@@ -304,7 +214,6 @@ void setupBLE() {
     logVerboseln("[BLE Server] Advertising with Admin Service UUID: " UUID_ADMIN_SERVICE);
     pAdminAdvertising->setScanResponse(true);
     pAdminAdvertising->start();
-    setupLogoutTimer();
     logInfoln("[BLE Server] BLE Ready");
 }
 
