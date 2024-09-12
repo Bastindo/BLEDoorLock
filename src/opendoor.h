@@ -1,15 +1,15 @@
 #ifndef OPENDOOR_H
 #define OPENDOOR_H
 
-#include "servo.h"
-#include "relay.h"
-#include "log.h"
-#include "config.h"
 #include "ble_server.h"
-
+#include "config.h"
+#include "log.h"
+#include "relay.h"
+#include "servo.h"
 
 void setupOpener();
 LockState getLockState();
+void setLockStateByUser(LockState state, std::string username);
 void setLockState(LockState state);
 
 #endif

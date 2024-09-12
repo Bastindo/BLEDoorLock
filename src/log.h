@@ -2,8 +2,19 @@
 #define LOG_H
 
 #include <ArduinoLog.h>
+#include <LittleFS.h>
 
 #include "config.h"
+
+struct UserOpenEvent {
+    int64_t unixTime;
+    std::string username;
+    LockState state;
+};
+
+void setupFileLog();
+
+void logUserOpenEvent(const UserOpenEvent* event);
 
 void setupLog();
 

@@ -36,6 +36,15 @@ LockState getLockState() {
     return lockState;
 }
 
+void setLockStateByUser(LockState state, std::string username) {
+    UserOpenEvent event;
+    event.unixTime = time(nullptr);
+    event.username = username;
+    event.state = state;
+    logUserOpenEvent(&event);
+    setLockState(state);
+}
+
 void setLockState(LockState state) {
     if (state == SHORT_UNLOCK) {
         timerWrite(lockTimer, 0);

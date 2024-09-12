@@ -63,6 +63,7 @@ class LockStateCharacteristicCallbacks : public NimBLECharacteristicCallbacks {
         std::string pass = pPassCharacteristic->getValue();
         std::string lockState = pCharacteristic->getValue();
         // asyncDisconnectClientDelayed();
+        killClientConnection();
         if (user.length() == 0 || pass.length() == 0 || lockState.length() == 0) {
             logWarnln("[BLE Server] LockState: Input missing");
             if (DEBUG_MODE) {
@@ -78,22 +79,21 @@ class LockStateCharacteristicCallbacks : public NimBLECharacteristicCallbacks {
             logVerboseln(("[BLE Server] Lock State Characteristic Value: " +
                           (String)pCharacteristic->getValue().c_str())
                              .c_str());
-            killClientConnection();
             switch (atoi(lockState.c_str())) {
                 case 0:
-                    setLockState(LOCKED);
+                    setLockStateByUser(LOCKED, user);
                     logVerboseln("[BLE Server] Lock closed");
                     break;
                 case 1:
-                    setLockState(UNLOCKED);
+                    setLockStateByUser(UNLOCKED, user);
                     logVerboseln("[BLE Server] Lock opened");
                     break;
                 case 2:  // short open
-                    setLockState(SHORT_UNLOCK);
+                    setLockStateByUser(SHORT_UNLOCK, user);
                     logVerboseln("[BLE Server] Lock short opened");
                     break;
                 default:
-                    setLockState(LOCKED);
+                    setLockStateByUser(LOCKED, user);
                     pCharacteristic->setValue("0");
                     logWarnln(("[BLE Server] Invalid lock state: " +
                                (String)pCharacteristic->getValue().c_str())

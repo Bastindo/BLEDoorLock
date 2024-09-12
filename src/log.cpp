@@ -52,6 +52,34 @@ void printPrefix(Print* _logOutput, int logLevel) {
     printLogLevel(_logOutput, logLevel);
 }
 
+void setupFileLog() {
+    if (!LittleFS.begin(true)) {
+        logFatalln("[UserAuth::setupUserAuth] Failed to mount file system");
+        return;
+    }
+
+    if (!LittleFS.exists("/log.csv")) {
+        File logs = LittleFS.open("/log.csv", "w");
+        logs.close();
+    }
+}
+
+void logUserOpenEvent(const UserOpenEvent* event) {
+    File logs = LittleFS.open("/log.csv", "a");
+    if (!logs) {
+        logFatalln("[logUserOpenEvent] Failed to open log file");
+        return;
+    }
+
+    logs.print(event->unixTime);
+    logs.print(",");
+    logs.print(event->username.c_str());
+    logs.print(",");
+    logs.print(event->state);
+    logs.println();
+    logs.close();
+}
+
 void setupLog() {
     Log.setPrefix(printPrefix);
     Log.begin(LOG_LEVEL, &Serial);
