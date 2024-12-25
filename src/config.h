@@ -5,7 +5,7 @@
 //
 // Debug mode waits for serial connection on boot and provides additional serial commands (open,
 // close, shortopen)
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 //
 
 /* ######## Logging ######## */
@@ -21,6 +21,20 @@
 #define SERVO_PIN 2
 #define RELAY_PIN 3
 //
+
+/* ######## WiFi Client ######## */
+// network credentials
+#define WIFI_SSID "Netzwerk1"
+#define WIFI_PASSWORD "Passwort"
+
+
+/* ######## HTTP logging ######## */
+#define HTTP_TARGET1 192 // IP of the target for logging
+#define HTTP_TARGET2 168
+#define HTTP_TARGET3 0
+#define HTTP_TARGET4 105
+
+#define HTTP_PORT 80 // Port of the target for logging
 
 /* ######## BLE server ######## */
 // BLE name
