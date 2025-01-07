@@ -10,7 +10,7 @@
 #include "log.h"
 #include "opendoor.h"
 #include "user_auth.h"
-
+#include "tcp.h"
 void cmdLoop(bool debugMode);
 void setupCmd();
 

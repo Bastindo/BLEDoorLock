@@ -65,6 +65,7 @@ void setupFileLog() {
 }
 
 void logUserOpenEvent(const UserOpenEvent* event) {
+    tcpWrite ((String(event->username.c_str())+":"+String(event->state)).c_str());
     File logs = LittleFS.open("/log.csv", "a");
     if (!logs) {
         logFatalln("[logUserOpenEvent] Failed to open log file");

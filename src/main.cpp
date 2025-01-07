@@ -6,6 +6,7 @@
 #include "log.h"
 #include "opendoor.h"
 #include "user_auth.h"
+#include "wifi_client.h"
 
 void setup() {
     Serial.begin(115200);
@@ -23,6 +24,7 @@ void setup() {
 
     setupOpener();
     setupBLE();
+    setupWiFi();
     setupUserAuth();
     setupFileLog();
     setupCmd();

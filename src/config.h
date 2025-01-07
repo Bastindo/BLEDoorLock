@@ -24,17 +24,17 @@
 
 /* ######## WiFi Client ######## */
 // network credentials
-#define WIFI_SSID "Netzwerk1"
-#define WIFI_PASSWORD "Passwort"
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
 
 
 /* ######## HTTP logging ######## */
 #define HTTP_TARGET1 192 // IP of the target for logging
 #define HTTP_TARGET2 168
-#define HTTP_TARGET3 0
-#define HTTP_TARGET4 105
+#define HTTP_TARGET3 178
+#define HTTP_TARGET4 236
 
-#define HTTP_PORT 80 // Port of the target for logging
+#define HTTP_PORT 64000 // Port of the target for logging
 
 /* ######## BLE server ######## */
 // BLE name
