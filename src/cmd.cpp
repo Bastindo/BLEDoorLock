@@ -43,6 +43,8 @@ void processCommand(char *cmd, bool debugMode) {
     Serial.println("  sysinfo - Displays system information");
     Serial.println("  reboot - Reboots the device");
     Serial.println("  rm - Removes a file from the LittleFS");
+    Serial.println("  tcp - sends \"test\" to the defined target");
+    Serial.println("  ip - Returns the IP Configuration");
   } else if (strcmp(cmd, "help") == 0 && !debugMode) {
     Serial.println("Available commands:");
     Serial.println("  help - Displays this help message");
@@ -62,6 +64,8 @@ void processCommand(char *cmd, bool debugMode) {
     Serial.println("  reboot - Reboots the device");
     Serial.println("  rm - Removes a file from the LittleFS");
     Serial.println("  ping - Returns 'pong'");
+    Serial.println("  tcp - sends \"test\" to the defined target");
+    Serial.println("  ip - Returns the IP Configuration");
   } else if (strcmp(cmd, "open") == 0 && debugMode) {
     setLockState(UNLOCKED);
   } else if (strcmp(cmd, "close") == 0 && debugMode) {
