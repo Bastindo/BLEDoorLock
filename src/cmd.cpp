@@ -1,20 +1,23 @@
 #include "cmd.h"
+#include "wifi_client.h"
 
 char buffer[CMD_BUFFER_SIZE];
 bool commandReceived = false;
 
-char* trimWhitespace(char* str) {
-  char* end;
-  while(isspace((unsigned char)*str)) str++;
-  if(*str == 0)
+char *trimWhitespace(char *str) {
+  char *end;
+  while (isspace((unsigned char)*str))
+    str++;
+  if (*str == 0)
     return str;
   end = str + strlen(str) - 1;
-  while(end > str && isspace((unsigned char)*end)) end--;
+  while (end > str && isspace((unsigned char)*end))
+    end--;
   end[1] = '\0';
   return str;
 }
 
-void processCommand(char* cmd, bool debugMode) {
+void processCommand(char *cmd, bool debugMode) {
   cmd = trimWhitespace(cmd);
   Serial.println();
 
@@ -23,45 +26,55 @@ void processCommand(char* cmd, bool debugMode) {
     Serial.println("  help - Displays this help message");
     Serial.println("  open - Opens the lock");
     Serial.println("  close - Closes the lock");
-    Serial.println("  shortopen - Opens the lock for " + String((float) SHORT_UNLOCK_TIME / 1000) + "s");
-    Serial.println("  cat <file> - Displays the contents of a file on the LittleFS");
+    Serial.println("  shortopen - Opens the lock for " +
+                   String((float)SHORT_UNLOCK_TIME / 1000) + "s");
+    Serial.println(
+        "  cat <file> - Displays the contents of a file on the LittleFS");
     Serial.println("  ls - Lists the files on the LittleFS");
-    Serial.println("  adduser <username> <password> - Adds a user to the user database");
-    Serial.println("  removeuser <username> - Removes a user from the user database");
-    Serial.println("  addadmin <username> <password> - Adds an admin account to the admin database");
-    Serial.println("  removeadmin <username> - Removes an admin account from the admin database");
+    Serial.println(
+        "  adduser <username> <password> - Adds a user to the user database");
+    Serial.println(
+        "  removeuser <username> - Removes a user from the user database");
+    Serial.println("  addadmin <username> <password> - Adds an admin account "
+                   "to the admin database");
+    Serial.println("  removeadmin <username> - Removes an admin account from "
+                   "the admin database");
     Serial.println("  hashpassword <password> - Hashes a password");
     Serial.println("  sysinfo - Displays system information");
     Serial.println("  reboot - Reboots the device");
-    
-  } 
-  else if (strcmp(cmd, "help") == 0 && !debugMode) {
+    Serial.println("  rm - Removes a file from the LittleFS");
+    Serial.println("  tcp - sends \"test\" to the defined target");
+    Serial.println("  ip - Returns the IP Configuration");
+  } else if (strcmp(cmd, "help") == 0 && !debugMode) {
     Serial.println("Available commands:");
     Serial.println("  help - Displays this help message");
-    Serial.println("  cat <file> - Displays the contents of a file on the LittleFS");
+    Serial.println(
+        "  cat <file> - Displays the contents of a file on the LittleFS");
     Serial.println("  ls - Lists the files on the LittleFS");
-    Serial.println("  adduser <username> <password> - Adds a user to the user database");
-    Serial.println("  removeuser <username> - Removes a user from the user database");
-    Serial.println("  addadmin <username> <password> - Adds an admin account to the admin database");
-    Serial.println("  removeadmin <username> - Removes an admin account from the admin database");
+    Serial.println(
+        "  adduser <username> <password> - Adds a user to the user database");
+    Serial.println(
+        "  removeuser <username> - Removes a user from the user database");
+    Serial.println("  addadmin <username> <password> - Adds an admin account "
+                   "to the admin database");
+    Serial.println("  removeadmin <username> - Removes an admin account from "
+                   "the admin database");
     Serial.println("  hashpassword <password> - Hashes a password");
     Serial.println("  sysinfo - Displays system information");
     Serial.println("  reboot - Reboots the device");
-  }
-  else if (strcmp(cmd, "open") == 0 && debugMode) {
-    doorOpen();
-  } 
-  else if (strcmp(cmd, "close") == 0 && debugMode) {
-    doorClose();
-  } 
-  else if (strcmp(cmd, "shortopen") == 0 && debugMode) {
-    doorOpen();
-    delay(SHORT_UNLOCK_TIME);
-    doorClose();
-  } 
-  else if (strncmp(cmd, "cat ", 4) == 0) {
-    char* filename = cmd + 4;
-    
+    Serial.println("  rm - Removes a file from the LittleFS");
+    Serial.println("  ping - Returns 'pong'");
+    Serial.println("  tcp - sends \"test\" to the defined target");
+    Serial.println("  ip - Returns the IP Configuration");
+  } else if (strcmp(cmd, "open") == 0 && debugMode) {
+    setLockState(UNLOCKED);
+  } else if (strcmp(cmd, "close") == 0 && debugMode) {
+    setLockState(LOCKED);
+  } else if (strcmp(cmd, "shortopen") == 0 && debugMode) {
+    setLockState(SHORT_UNLOCK);
+  } else if (strncmp(cmd, "cat ", 4) == 0) {
+    char *filename = cmd + 4;
+
     // add "/" to filename if it doesn't start with it
     if (filename[0] != '/') {
       char temp[CMD_BUFFER_SIZE];
@@ -79,21 +92,17 @@ void processCommand(char* cmd, bool debugMode) {
       }
       file.close();
     }
-  }
-  else if (strncmp(cmd, "adduser ", 8) == 0) {
-    char* username = strtok(cmd + 8, " ");
-    char* password = strtok(NULL, " ");
-    addUser({username, hashPassword(password)});
-  }
-  else if (strncmp(cmd, "removeuser ", 11) == 0) {
-    char* username = cmd + 11;
+  } else if (strncmp(cmd, "adduser ", 8) == 0) {
+    char *username = strtok(cmd + 8, " ");
+    char *password = strtok(NULL, " ");
+    addUser({username, hashPassword(password), UserRole::User});
+  } else if (strncmp(cmd, "removeuser ", 11) == 0) {
+    char *username = cmd + 11;
     removeUser(username);
-  }
-  else if (strncmp(cmd, "hashpassword ", 13) == 0) {
-    char* password = cmd + 13;
+  } else if (strncmp(cmd, "hashpassword ", 13) == 0) {
+    char *password = cmd + 13;
     Serial.println(hashPassword(password).c_str());
-  }
-  else if (strcmp(cmd, "sysinfo") == 0) {
+  } else if (strcmp(cmd, "sysinfo") == 0) {
     Serial.println("System information:");
     Serial.println("  Chip");
     Serial.println("  ├ Chip model: " + String(ESP.getChipModel()));
@@ -107,22 +116,18 @@ void processCommand(char* cmd, bool debugMode) {
     Serial.println("  └ Flash chip speed: " + String(ESP.getFlashChipSpeed()));
     Serial.println("  Misc");
     Serial.println("  └ SDK version: " + String(ESP.getSdkVersion()));
-  }
-  else if (strcmp(cmd, "reboot") == 0) {
+  } else if (strcmp(cmd, "reboot") == 0) {
     ESP.restart();
-  }
-  else if (strncmp(cmd, "addadmin ", 9) == 0) {
-    char* username = strtok(cmd + 9, " ");
-    char* password = strtok(NULL, " ");
-    addAdmin({username, hashPassword(password)});
-  }
-  else if (strncmp(cmd, "removeadmin ", 12) == 0) {
-    char* username = cmd + 12;
-    removeAdmin(username);
-  }
-  else if (strcmp(cmd, "ls") == 0) {
+  } else if (strncmp(cmd, "addadmin ", 9) == 0) {
+    char *username = strtok(cmd + 9, " ");
+    char *password = strtok(NULL, " ");
+    addUser({username, hashPassword(password), UserRole::Admin});
+  } else if (strncmp(cmd, "removeadmin ", 12) == 0) {
+    char *username = cmd + 12;
+    removeUser(username);
+  } else if (strcmp(cmd, "ls") == 0) {
     File root = LittleFS.open("/");
-    if (!root ||!root.isDirectory()) {
+    if (!root || !root.isDirectory()) {
       Serial.println("Failed to open root directory");
       return;
     }
@@ -134,11 +139,31 @@ void processCommand(char* cmd, bool debugMode) {
       entry = root.openNextFile();
     }
     root.close();
-  }
-  else if (strcmp(cmd, "") == 0) {
+  } else if (strncmp(cmd, "rm ", 3) == 0) {
+    char *filename = cmd + 3;
+
+    // add "/" to filename if it doesn't start with it
+    if (filename[0] != '/') {
+      char temp[CMD_BUFFER_SIZE];
+      strcpy(temp, "/");
+      strcat(temp, filename);
+      strcpy(filename, temp);
+    }
+
+    if (LittleFS.remove(filename)) {
+      Serial.println("Removed file: " + String(filename));
+    } else {
+      Serial.println("Failed to remove file: " + String(filename));
+    }
+  } else if (strcmp(cmd, "tcp") == 0) {
+    tcpWrite("test");
+  } else if (strcmp(cmd, "ping") == 0) {
+    Serial.println("pong");
+  } else if (strcmp(cmd, "ip") == 0) {
+    printWiFiInfo();
+  } else if (strcmp(cmd, "") == 0) {
     // Do nothing
-  }
-  else {
+  } else {
     Serial.println("Unknown command: " + String(cmd));
   }
 }
@@ -152,10 +177,11 @@ void cmdLoop(bool debugMode) {
     if (ch == 8 || ch == 127) { // ASCII values for backspace
       if (idx > 0) {
         idx--;
-        Serial.print("\b \b"); // Move cursor back, overwrite with space, move back again
+        Serial.print(
+            "\b \b"); // Move cursor back, overwrite with space, move back again
       }
-    } else if (ch!= '\n' && ch!= '\r') {
-        Serial.print(ch);
+    } else if (ch != '\n' && ch != '\r') {
+      Serial.print(ch);
     }
 
     if (ch == '\n' || ch == '\r') {

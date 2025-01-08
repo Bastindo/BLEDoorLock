@@ -1,0 +1,5 @@
+qrcode
+load_dotenv
+pyserial
+Pillow
+matplotlib

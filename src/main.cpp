@@ -1,30 +1,35 @@
 #include <Arduino.h>
 
-#include "config.h"
-
 #include "ble_server.h"
 #include "cmd.h"
+#include "config.h"
 #include "log.h"
 #include "opendoor.h"
 #include "user_auth.h"
+#include "wifi_client.h"
 
 void setup() {
-  Serial.begin(115200);
+    Serial.begin(115200);
+#if DEBUG_MODE == 1
+    while (!Serial && !Serial.available()) {
+    }
+#endif
 
-  #if DEBUG_MODE == 1
-    while(!Serial && !Serial.available()){}
-  #endif
+    setupLog();
 
-  setupLog();
+    logInfoln("Starting up...");
+    uint32_t freq = getCpuFrequencyMhz();
+    String freqString = "CPU Frequency: " + String(freq) + "MHz\n";
+    logInfo(freqString.c_str());
 
-  logInfoln("Starting up...");
-
-  setupOpener();
-  setupBLE();
-  setupUserAuth();
-  setupCmd();
+    setupOpener();
+    setupBLE();
+    setupWiFi();
+    setupUserAuth();
+    setupFileLog();
+    setupCmd();
 }
 
 void loop() {
-  cmdLoop(DEBUG_MODE);
+    cmdLoop(DEBUG_MODE);
 }
