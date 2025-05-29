@@ -5,8 +5,6 @@
 #include "log.h"
 #include <WiFi.h>
 
-
-
 void setupWiFi();
 void printWiFiInfo();
 #endif

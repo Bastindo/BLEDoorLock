@@ -1,11 +1,10 @@
 #ifndef OPENDOOR_H
 #define OPENDOOR_H
 
-#include "ble_server.h"
+#include "ble_server2.h"
 #include "config.h"
 #include "log.h"
 #include "relay.h"
-#include "servo.h"
 
 void setupOpener();
 LockState getLockState();

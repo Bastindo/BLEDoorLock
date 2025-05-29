@@ -161,6 +161,8 @@ void processCommand(char *cmd, bool debugMode) {
     Serial.println("pong");
   } else if (strcmp(cmd, "ip") == 0) {
     printWiFiInfo();
+  } else if (strcmp(cmd, "ble") == 0) {
+    printBLEaddress();
   } else if (strcmp(cmd, "") == 0) {
     // Do nothing
   } else {

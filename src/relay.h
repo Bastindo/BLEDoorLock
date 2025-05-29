@@ -4,6 +4,7 @@
 
 #include <Arduino.h>
 #include <ESP32Servo.h>
+#include <sstream>
 
 #include "config.h"
 
@@ -13,7 +14,5 @@ void setupRelay();
 void setRelayState(bool state);
 void relayOpen();
 void relayClose();
-
-
 
 #endif

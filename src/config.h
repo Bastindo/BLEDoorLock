@@ -17,10 +17,13 @@
 
 /* ######## Servo ######## */
 //
-// Connect servo PWM line to the GPIO pin configured here (2 corresponds to D2)
-#define SERVO_PIN 2
-#define RELAY_PIN 3
+// Connect servo PWM line to the GPIO pin configured here (2 corresponds to D2) new pin is D13
+#define RELAY_PIN 13
 //
+
+/* ######## Wifi ######## */
+// set to 1 to activate WiFi
+#define WIFI 0
 
 /* ######## WiFi Client ######## */
 // network credentials
@@ -41,10 +44,7 @@
 #define BLE_NAME "NimBLE Servo Lock 3"
 //
 // time interval for the Short Unlock function
-#define SHORT_UNLOCK_TIME 1000  // ms
-//
-// PIN for bluetooth pairing
-#define BLE_PIN 123456
+#define SHORT_UNLOCK_TIME 3000  // ms
 //
 // Logout time in ms
 #define LOGOUT_TIME 12000
@@ -52,6 +52,7 @@
 // UUIDs (usually shouldn't be changed)
 #define UUID_USER_SERVICE "2ff7c135-5010-497b-a054-cea3984c7cc9"
 #define UUID_ADMIN_SERVICE "be527357-c722-4367-aac3-bddef6a6f6e2"
+#define UUID_CRYPTO_SERVICE "1c970e06-8094-4b83-a54b-a465396ebaa8"
 //
 #define UUID_USER_CHARACTERISTIC "5d3932fa-2901-4b6b-9f41-7720976a85d4"
 #define UUID_PASS_CHARACTERISTIC "dd16cad0-a66a-402f-9183-201c20753647"
@@ -63,6 +64,7 @@
 #define UUID_ADDPASS_CHARACTERISTIC "8de8c0c0-0568-40a0-a52b-520a6e772503"
 #define UUID_ADMINACTION_CHARACTERISTIC "b1d86fdf-7d5d-49b7-8da7-b02bd53bdb0a"
 //
+#define UUID_KEY_CHARACTERISTIC "df5ba2aa-c90c-4c90-8c5f-059f62ff51a1"
 
 /* ######## CMD ######## */
 //

@@ -5,7 +5,12 @@
 #include <FS.h>
 #include <LittleFS.h>
 
-#include "ble_server.h"
+//Screw NimBLE
+//#include "ble_server.h"
+
+//using BLE.h instead
+#include "ble_server2.h"
+
 #include "config.h"
 #include "log.h"
 #include "opendoor.h"
