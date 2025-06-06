@@ -64,8 +64,8 @@ Just send your username and password to the first two characteristics and your l
 
 The lockstate can be:
 
-- 0 for opening the door
-- 1 for closing the door
+- 0 for closing the door
+- 1 for opening the door
 - 2 for opening the door for a short period of time (default: 10 seconds)
 
 The second service can be used to add or remove user accounts and provides five characteristics: Admin Username, Admin Password, Username, Password and Admin Action.
