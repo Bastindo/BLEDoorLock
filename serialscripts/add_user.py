@@ -40,7 +40,7 @@ def add_user(username):
             "lockId": LOCK_ID,
             "password": password,
             "userName": username,
-            "lockName": "NimBLE Servo Lock 2",
+            "lockName": "NimBLE Servo Lock 3",
             "isAdmin": False,
             "color": None
         }

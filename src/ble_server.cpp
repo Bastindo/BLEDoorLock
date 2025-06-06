@@ -1,5 +1,4 @@
-#include "ble_server.h"
-
+/*
 #include "opendoor.h"
 
 NimBLECharacteristic *pUserCharacteristic;
@@ -233,3 +232,4 @@ void setLockStateFromBLE(LockState state) {
             break;
     }
 }
+#endif*/
