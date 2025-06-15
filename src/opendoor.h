@@ -5,6 +5,7 @@
 #include "config.h"
 #include "log.h"
 #include "relay.h"
+#include "servo.h"
 
 void setupOpener();
 LockState getLockState();

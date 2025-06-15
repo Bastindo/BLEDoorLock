@@ -1,10 +1,12 @@
 #include "opendoor.h"
 
 void doorOpen() {
+    servoOpen();
     relayOpen();
 }
 
 void doorClose() {
+    servoClose();
     relayClose();
 }
 
@@ -25,6 +27,7 @@ void setupLockTimer() {
 }
 
 void setupOpener() {
+    setupServo();
     setupRelay();
     setupLockTimer();
 }

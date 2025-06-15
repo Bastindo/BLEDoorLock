@@ -15,9 +15,14 @@
 #define LOG_LEVEL LOG_LEVEL_VERBOSE
 //
 
-/* ######## Servo ######## */
+/* ######## Door Opener ######## */
 //
-// Connect servo PWM line to the GPIO pin configured here (2 corresponds to D2) new pin is D13
+// Connect servo PWM line to the GPIO pin configured here (2 usually corresponds to D2) new pin is D13
+#define SERVO_PIN 2
+#define SERVO_OPEN_ANGLE 80 // angle to open the door
+#define SERVO_CLOSE_ANGLE 90 // angle to close the door (Default state)
+//
+// Connect relay control line to the GPIO pin configured here (13 usually corresponds to D13)
 #define RELAY_PIN 13
 //
 
@@ -41,7 +46,7 @@
 
 /* ######## BLE server ######## */
 // BLE name
-#define BLE_NAME "NimBLE Servo Lock 3"
+#define BLE_NAME "NimBLE Servo Lock 4"
 //
 // time interval for the Short Unlock function
 #define SHORT_UNLOCK_TIME 3000  // ms
