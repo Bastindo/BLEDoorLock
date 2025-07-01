@@ -35,8 +35,7 @@ void setupBLE() {
   if (!BLE.begin()) {
     logFatalln("starting Bluetooth Low Energy module failed!");
 
-    while (1)
-      ;
+    while (1);
   }
 
   BLE.setLocalName(BLE_NAME);
@@ -196,7 +195,7 @@ void onCryptoWrite(BLEDevice central, BLECharacteristic characteristic) {
 #if DEBUG_MODE == 1
   Serial.println("AES-256 Key erfolgreich gesetzt:");
   Serial.print("AES-256 Key: ");
-  for (size_t i = 0; i < AES_KEY_SIZE; i++) {
+  for (size_t i = 0; i < RSA_KEY_SIZE; i++) {
     Serial.print(encrypted_aes_key[i], HEX);  // Hexadezimal ausgeben
     Serial.print(" ");  // Ausgabe eines Leerzeichens zwischen den Bytes
   }
