@@ -14,9 +14,9 @@ const std::string User = "user";
 const std::string Admin = "admin";
 }  // namespace UserRole
 struct User {
-    std::string username;
-    std::string passwordHash;
-    std::string role;
+  std::string username;
+  std::string passwordHash;
+  std::string role;
 };
 
 bool isValidUsername(const std::string& username);

@@ -5,7 +5,6 @@
 #include <ESP32Servo.h>
 
 #include "config.h"
-
 #include "log.h"
 
 void setupServo();

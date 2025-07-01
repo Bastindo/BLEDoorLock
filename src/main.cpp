@@ -23,9 +23,9 @@ void setup() {
   logInfo(freqString.c_str());
   setupBLE();
   setupOpener();
-  #if (WIFI==1)
+#if (WIFI == 1)
   setupWiFi();
-  #endif
+#endif
   setupUserAuth();
   setupFileLog();
   setupCmd();

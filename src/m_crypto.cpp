@@ -7,13 +7,12 @@ uint8_t m_aes_iv[12] = {0x46, 0x61, 0x63, 0x68, 0x73, 0x63,
 
 void generate_aes_key() {
   for (int i = 0; i < AES_KEY_SIZE; i++) {
-    m_aes_key[i] = rand() % 256; // Zufallswerte zwischen 0-255
+    m_aes_key[i] = rand() % 256;  // Zufallswerte zwischen 0-255
   }
 }
 // OAEP mit SHA-256 für die RSA-Verschlüsselung eines AES-Keys
 int encrypt_aes_key_with_rsa(const uint8_t *rsa_pub_key, size_t rsa_key_len,
                              uint8_t *encrypted_aes_key) {
-
   mbedtls_pk_context pk;
   mbedtls_pk_init(&pk);
 
@@ -31,7 +30,7 @@ int encrypt_aes_key_with_rsa(const uint8_t *rsa_pub_key, size_t rsa_key_len,
 
   mbedtls_rsa_context *rsa = mbedtls_pk_rsa(pk);
   mbedtls_rsa_set_padding(rsa, MBEDTLS_RSA_PKCS_V21,
-                          MBEDTLS_MD_SHA256); // PKCS#1 OAEP mit SHA-256
+                          MBEDTLS_MD_SHA256);  // PKCS#1 OAEP mit SHA-256
 
   // Zufallszahlengenerator für OAEP
   mbedtls_entropy_context entropy;
@@ -40,7 +39,7 @@ int encrypt_aes_key_with_rsa(const uint8_t *rsa_pub_key, size_t rsa_key_len,
   mbedtls_ctr_drbg_init(&ctr_drbg);
   mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, NULL, 0);
 
-  // Verschlüssele den AES-Schlüssel mit RSA-1024 und OAEP
+  // Verschlüssele den AES-Schlüssel mit RSA und OAEP
   ret = mbedtls_rsa_rsaes_oaep_encrypt(rsa, mbedtls_ctr_drbg_random, &ctr_drbg,
                                        MBEDTLS_RSA_PUBLIC, NULL, 0, 32,
                                        m_aes_key, encrypted_aes_key);
@@ -58,7 +57,7 @@ int aes_decrypt_gcm(const unsigned char *input, unsigned char *output,
   mbedtls_gcm_context gcm;
   mbedtls_gcm_init(&gcm);
 
-  // Schlüssel setzen (128 Bit)
+  // Schlüssel setzen
   mbedtls_gcm_setkey(&gcm, MBEDTLS_CIPHER_ID_AES, m_aes_key, AES_KEY_SIZE);
 
   // Entschlüsseln mit Authentifizierungsprüfung
