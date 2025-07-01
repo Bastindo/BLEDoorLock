@@ -5,17 +5,16 @@
 #include <FS.h>
 #include <LittleFS.h>
 
-//Screw NimBLE
-//#include "ble_server.h"
+// Screw NimBLE
+// #include "ble_server.h"
 
-//using BLE.h instead
+// using BLE.h instead
 #include "ble_server2.h"
-
 #include "config.h"
 #include "log.h"
 #include "opendoor.h"
-#include "user_auth.h"
 #include "tcp.h"
+#include "user_auth.h"
 void cmdLoop(bool debugMode);
 void setupCmd();
 

@@ -5,14 +5,14 @@
 
 #include "config.h"
 #include "log.h"
+#include "m_crypto.h"
 #include "opendoor.h"
 #include "user_auth.h"
-#include "m_crypto.h"
 
 void setupBLE();
 void setLockStateFromBLE(LockState state);
 void printBLEaddress();
-void onUserWrite(BLEDevice central, BLECharacteristic characteristic); 
-void onAdminWrite(BLEDevice central, BLECharacteristic characteristic); 
+void onUserWrite(BLEDevice central, BLECharacteristic characteristic);
+void onAdminWrite(BLEDevice central, BLECharacteristic characteristic);
 void onCryptoWrite(BLEDevice central, BLECharacteristic characteristic);
 #endif

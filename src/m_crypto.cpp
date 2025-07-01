@@ -12,7 +12,6 @@ void generate_aes_key() {
 // OAEP with SHA-256 for RSA encryption of an AES key
 int encrypt_aes_key_with_rsa(const uint8_t *rsa_pub_key, size_t rsa_key_len,
                              uint8_t *encrypted_aes_key) {
-
   mbedtls_pk_context pk;
   mbedtls_pk_init(&pk);
 

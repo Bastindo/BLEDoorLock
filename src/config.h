@@ -3,21 +3,28 @@
 
 /* ######## Debug Mode ######## */
 //
-// Debug mode waits for serial connection on boot and provides additional serial commands (open,
-// close, shortopen)
-#define DEBUG_MODE 0
+// Debug mode waits for serial connection on boot and provides additional serial
+// commands (open, close, shortopen)
+#define DEBUG_MODE 1
 //
 
 /* ######## Logging ######## */
 //
-// Log level (possible options: LOG_LEVEL_{SILENT, FATAL, ERROR, WARNING, INFO, TRACE, VERBOSE}, use
-// ERROR if you only want to log user authentications)
+// Log level (possible options: LOG_LEVEL_{SILENT, FATAL, ERROR, WARNING, INFO,
+// TRACE, VERBOSE}, use ERROR if you only want to log user authentications)
 #define LOG_LEVEL LOG_LEVEL_VERBOSE
 //
 
-/* ######## Servo ######## */
+/* ######## Door Opener ######## */
 //
-// Connect servo PWM line to the GPIO pin configured here (2 corresponds to D2) new pin is D13
+// Connect servo PWM line to the GPIO pin configured here (2 usually corresponds
+// to D2) new pin is D13
+#define SERVO_PIN 2
+#define SERVO_OPEN_ANGLE 80   // angle to open the door
+#define SERVO_CLOSE_ANGLE 90  // angle to close the door (Default state)
+//
+// Connect relay control line to the GPIO pin configured here (13 usually
+// corresponds to D13)
 #define RELAY_PIN 13
 //
 
@@ -30,18 +37,17 @@
 #define WIFI_SSID ""
 #define WIFI_PASSWORD ""
 
-
 /* ######## HTTP logging ######## */
-#define HTTP_TARGET1 192 // IP of the target for logging
+#define HTTP_TARGET1 192  // IP of the target for logging
 #define HTTP_TARGET2 168
 #define HTTP_TARGET3 178
 #define HTTP_TARGET4 236
 
-#define HTTP_PORT 64000 // Port of the target for logging
+#define HTTP_PORT 64000  // Port of the target for logging
 
 /* ######## BLE server ######## */
 // BLE name
-#define BLE_NAME "NimBLE Servo Lock 3"
+#define BLE_NAME "NimBLE Servo Lock 4"
 //
 // time interval for the Short Unlock function
 #define SHORT_UNLOCK_TIME 3000  // ms
@@ -72,7 +78,8 @@
 #define CMD_BUFFER_SIZE 256
 //
 
-#define VALID_USERNAME_CHARACTER "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
+#define VALID_USERNAME_CHARACTER \
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 
 /* ######## LockState ######## */
 

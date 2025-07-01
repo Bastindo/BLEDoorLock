@@ -1,4 +1,5 @@
 #include "ble_server2.h"
+
 #include "m_crypto.h"
 
 // User login + Lockstate
@@ -13,7 +14,8 @@ BLECharacteristic pLockStateCharacteristic(UUID_LOCKSTATE_CHARACTERISTIC,
 // Security
 BLEService CryptoService(UUID_CRYPTO_SERVICE);
 BLECharacteristic pKeyCharacteristic(UUID_KEY_CHARACTERISTIC,
-                                     BLERead | BLEWrite, 219, false);
+                                     BLERead | BLENotify | BLEWrite, 219,
+                                     false);
 
 BLEService AdminService(UUID_ADMIN_SERVICE);
 BLECharacteristic pAdminCharacteristic(UUID_ADMIN_CHARACTERISTIC, BLEWrite, 32,
@@ -76,10 +78,10 @@ void onUserWrite(BLEDevice central, BLECharacteristic characteristic) {
   Serial.print("\n");
 #endif
   memcpy(m_aes_cipher, user, 16);
-  memcpy(m_aes_tag, user+16, 16);
+  memcpy(m_aes_tag, user + 16, 16);
   aes_decrypt_gcm(m_aes_cipher, m_aes_tag, m_aes_text);
   std::string username(m_aes_text, m_aes_text + 16);
-  Serial.print(("username: "+username+"\n").c_str());
+  Serial.print(("username: " + username + "\n").c_str());
   const unsigned char *pass = pPassCharacteristic.value();
 #if DEBUG_MODE == 1
   for (size_t i = 0; i < 32; i++) {
@@ -89,10 +91,10 @@ void onUserWrite(BLEDevice central, BLECharacteristic characteristic) {
   Serial.print("\n");
 #endif
   memcpy(m_aes_cipher, pass, 16);
-  memcpy(m_aes_tag, pass+16, 16);
+  memcpy(m_aes_tag, pass + 16, 16);
   aes_decrypt_gcm(m_aes_cipher, m_aes_tag, m_aes_text);
   std::string userpass(m_aes_text, m_aes_text + 16);
-  Serial.print(("userpass: "+userpass+"\n").c_str());
+  Serial.print(("userpass: " + userpass + "\n").c_str());
   const unsigned char *lockstate = characteristic.value();
 #if DEBUG_MODE == 1
   for (size_t i = 0; i < 1; i++) {
@@ -105,7 +107,7 @@ void onUserWrite(BLEDevice central, BLECharacteristic characteristic) {
 }
 
 void onAdminWrite(BLEDevice central, BLECharacteristic characteristic) {
-   uint8_t m_aes_tag[16] = {0};
+  uint8_t m_aes_tag[16] = {0};
   uint8_t m_aes_cipher[16] = {0};
   uint8_t m_aes_text[16] = {0};
   const unsigned char *admin = pAdminCharacteristic.value();
@@ -117,7 +119,7 @@ void onAdminWrite(BLEDevice central, BLECharacteristic characteristic) {
   Serial.print("\n");
 #endif
   memcpy(m_aes_cipher, admin, 16);
-  memcpy(m_aes_tag, admin+16, 16);
+  memcpy(m_aes_tag, admin + 16, 16);
   aes_decrypt_gcm(m_aes_cipher, m_aes_tag, m_aes_text);
 
   const unsigned char *adminPass = pAdminPassCharacteristic.value();
@@ -129,7 +131,7 @@ void onAdminWrite(BLEDevice central, BLECharacteristic characteristic) {
   Serial.print("\n");
 #endif
   memcpy(m_aes_cipher, adminPass, 16);
-  memcpy(m_aes_tag, adminPass+16, 16);
+  memcpy(m_aes_tag, adminPass + 16, 16);
   aes_decrypt_gcm(m_aes_cipher, m_aes_tag, m_aes_text);
 
   const unsigned char *userName = pAddUserCharacteristic.value();
@@ -141,7 +143,7 @@ void onAdminWrite(BLEDevice central, BLECharacteristic characteristic) {
   Serial.print("\n");
 #endif
   memcpy(m_aes_cipher, userName, 16);
-  memcpy(m_aes_tag, userName+16, 16);
+  memcpy(m_aes_tag, userName + 16, 16);
   aes_decrypt_gcm(m_aes_cipher, m_aes_tag, m_aes_text);
 
   const unsigned char *userPass = pAddPassCharacteristic.value();
@@ -153,7 +155,7 @@ void onAdminWrite(BLEDevice central, BLECharacteristic characteristic) {
   Serial.print("\n");
 #endif
   memcpy(m_aes_cipher, userPass, 16);
-  memcpy(m_aes_tag, userPass+16, 16);
+  memcpy(m_aes_tag, userPass + 16, 16);
   aes_decrypt_gcm(m_aes_cipher, m_aes_tag, m_aes_text);
 
   const unsigned char *action = characteristic.value();
@@ -193,18 +195,18 @@ void onCryptoWrite(BLEDevice central, BLECharacteristic characteristic) {
 
 void setLockStateFromBLE(LockState state) {
   switch (state) {
-  case LOCKED:
-    pLockStateCharacteristic.setValue("0");
-    break;
-  case UNLOCKED:
-    pLockStateCharacteristic.setValue("1");
-    break;
-  case SHORT_UNLOCK:
-    pLockStateCharacteristic.setValue("2");
-    break;
-  default:
-    pLockStateCharacteristic.setValue("0");
-    break;
+    case LOCKED:
+      pLockStateCharacteristic.setValue("0");
+      break;
+    case UNLOCKED:
+      pLockStateCharacteristic.setValue("1");
+      break;
+    case SHORT_UNLOCK:
+      pLockStateCharacteristic.setValue("2");
+      break;
+    default:
+      pLockStateCharacteristic.setValue("0");
+      break;
   }
 }
 

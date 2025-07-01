@@ -1,4 +1,5 @@
 #include "cmd.h"
+
 #include "wifi_client.h"
 
 char buffer[CMD_BUFFER_SIZE];
@@ -6,13 +7,10 @@ bool commandReceived = false;
 
 char *trimWhitespace(char *str) {
   char *end;
-  while (isspace((unsigned char)*str))
-    str++;
-  if (*str == 0)
-    return str;
+  while (isspace((unsigned char)*str)) str++;
+  if (*str == 0) return str;
   end = str + strlen(str) - 1;
-  while (end > str && isspace((unsigned char)*end))
-    end--;
+  while (end > str && isspace((unsigned char)*end)) end--;
   end[1] = '\0';
   return str;
 }
@@ -35,10 +33,12 @@ void processCommand(char *cmd, bool debugMode) {
         "  adduser <username> <password> - Adds a user to the user database");
     Serial.println(
         "  removeuser <username> - Removes a user from the user database");
-    Serial.println("  addadmin <username> <password> - Adds an admin account "
-                   "to the admin database");
-    Serial.println("  removeadmin <username> - Removes an admin account from "
-                   "the admin database");
+    Serial.println(
+        "  addadmin <username> <password> - Adds an admin account "
+        "to the admin database");
+    Serial.println(
+        "  removeadmin <username> - Removes an admin account from "
+        "the admin database");
     Serial.println("  hashpassword <password> - Hashes a password");
     Serial.println("  sysinfo - Displays system information");
     Serial.println("  reboot - Reboots the device");
@@ -55,10 +55,12 @@ void processCommand(char *cmd, bool debugMode) {
         "  adduser <username> <password> - Adds a user to the user database");
     Serial.println(
         "  removeuser <username> - Removes a user from the user database");
-    Serial.println("  addadmin <username> <password> - Adds an admin account "
-                   "to the admin database");
-    Serial.println("  removeadmin <username> - Removes an admin account from "
-                   "the admin database");
+    Serial.println(
+        "  addadmin <username> <password> - Adds an admin account "
+        "to the admin database");
+    Serial.println(
+        "  removeadmin <username> - Removes an admin account from "
+        "the admin database");
     Serial.println("  hashpassword <password> - Hashes a password");
     Serial.println("  sysinfo - Displays system information");
     Serial.println("  reboot - Reboots the device");
@@ -171,16 +173,16 @@ void processCommand(char *cmd, bool debugMode) {
 }
 
 void cmdLoop(bool debugMode) {
-  static unsigned int idx = 0; // Index for reading characters into the buffer
+  static unsigned int idx = 0;  // Index for reading characters into the buffer
 
   while (Serial.available() > 0) {
     char ch = Serial.read();
 
-    if (ch == 8 || ch == 127) { // ASCII values for backspace
+    if (ch == 8 || ch == 127) {  // ASCII values for backspace
       if (idx > 0) {
         idx--;
-        Serial.print(
-            "\b \b"); // Move cursor back, overwrite with space, move back again
+        Serial.print("\b \b");  // Move cursor back, overwrite with space, move
+                                // back again
       }
     } else if (ch != '\n' && ch != '\r') {
       Serial.print(ch);

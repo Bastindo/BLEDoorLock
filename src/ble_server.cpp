@@ -63,12 +63,12 @@ class LockStateCharacteristicCallbacks : public NimBLECharacteristicCallbacks {
         std::string lockState = pCharacteristic->getValue();
         // asyncDisconnectClientDelayed();
         killClientConnection();
-        if (user.length() == 0 || pass.length() == 0 || lockState.length() == 0) {
-            logWarnln("[BLE Server] LockState: Input missing");
-            if (DEBUG_MODE) {
+        if (user.length() == 0 || pass.length() == 0 || lockState.length() == 0)
+{ logWarnln("[BLE Server] LockState: Input missing"); if (DEBUG_MODE) {
                 logWarnln(("[BLE Server] Input - User: " + user).c_str());
                 logWarnln(("[BLE Server] Input - Pass: " + pass).c_str());
-                logWarnln(("[BLE Server] Input - LockState: " + lockState).c_str());
+                logWarnln(("[BLE Server] Input - LockState: " +
+lockState).c_str());
             }
             return;
         }
@@ -106,22 +106,20 @@ class LockStateCharacteristicCallbacks : public NimBLECharacteristicCallbacks {
     };
 };
 
-class AdminActionCharacteristicCallbacks : public NimBLECharacteristicCallbacks {
-    void onWrite(NimBLECharacteristic *pCharacteristic) {
-        std::string adminName = pAdminCharacteristic->getValue();
-        std::string adminpass = pAdminPassCharacteristic->getValue();
-        std::string user = pAddUserCharacteristic->getValue();
-        std::string userpass = pAddPassCharacteristic->getValue();
-        std::string action = pCharacteristic->getValue();
-        if (adminName.length() == 0 || adminpass.length() == 0 || user.length() == 0 ||
-            action.length() == 0) {
-            logWarnln("[BLE Server] Admin: Input missing");
-            if (DEBUG_MODE) {
-                logWarnln(("[BLE Server] Input - Admin: " + adminName).c_str());
-                logWarnln(("[BLE Server] Input - AdminPass: " + adminpass).c_str());
-                logWarnln(("[BLE Server] Input - User: " + user).c_str());
-                logWarnln(("[BLE Server] Input - UserPass: " + userpass).c_str());
-                logWarnln(("[BLE Server] Input - Action: " + action).c_str());
+class AdminActionCharacteristicCallbacks : public NimBLECharacteristicCallbacks
+{ void onWrite(NimBLECharacteristic *pCharacteristic) { std::string adminName =
+pAdminCharacteristic->getValue(); std::string adminpass =
+pAdminPassCharacteristic->getValue(); std::string user =
+pAddUserCharacteristic->getValue(); std::string userpass =
+pAddPassCharacteristic->getValue(); std::string action =
+pCharacteristic->getValue(); if (adminName.length() == 0 || adminpass.length()
+== 0 || user.length() == 0 || action.length() == 0) { logWarnln("[BLE Server]
+Admin: Input missing"); if (DEBUG_MODE) { logWarnln(("[BLE Server] Input -
+Admin: " + adminName).c_str()); logWarnln(("[BLE Server] Input - AdminPass: " +
+adminpass).c_str()); logWarnln(("[BLE Server] Input - User: " + user).c_str());
+                logWarnln(("[BLE Server] Input - UserPass: " +
+userpass).c_str()); logWarnln(("[BLE Server] Input - Action: " +
+action).c_str());
             }
             return;
         }
@@ -132,12 +130,9 @@ class AdminActionCharacteristicCallbacks : public NimBLECharacteristicCallbacks 
             switch (atoi(action.c_str())) {
                 case 0:
                     removeUser(user);
-                    logInfoln(("[BLE Server] User " + user + " removed").c_str());
-                    break;
-                case 1:
-                    if (userpass.length() == 0) {
-                        logWarnln("[BLE Server] Add User: Password missing");
-                        return;
+                    logInfoln(("[BLE Server] User " + user + "
+removed").c_str()); break; case 1: if (userpass.length() == 0) { logWarnln("[BLE
+Server] Add User: Password missing"); return;
                     }
                     addUser({user, hashPassword(userpass), UserRole::User});
                     logInfoln(("[BLE Server] User " + user + " added").c_str());
@@ -170,48 +165,50 @@ void setupBLE() {
     NimBLEService *pUserService = pServer->createService(UUID_USER_SERVICE);
     pUserCharacteristic = pUserService->createCharacteristic(
         UUID_USER_CHARACTERISTIC,
-        NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::WRITE_AUTHEN);
-    pPassCharacteristic = pUserService->createCharacteristic(
-        UUID_PASS_CHARACTERISTIC,
-        NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::WRITE_AUTHEN);
-    pLockStateCharacteristic =
+        NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC |
+NIMBLE_PROPERTY::WRITE_AUTHEN); pPassCharacteristic =
+pUserService->createCharacteristic( UUID_PASS_CHARACTERISTIC,
+        NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC |
+NIMBLE_PROPERTY::WRITE_AUTHEN); pLockStateCharacteristic =
         pUserService->createCharacteristic(UUID_LOCKSTATE_CHARACTERISTIC,
-                                           NIMBLE_PROPERTY::READ |  // for getting the lock state
-                                               NIMBLE_PROPERTY::WRITE);
+                                           NIMBLE_PROPERTY::READ |  // for
+getting the lock state NIMBLE_PROPERTY::WRITE);
 
     // Admin Service
     NimBLEService *pAdminService = pServer->createService(UUID_ADMIN_SERVICE);
     pAdminCharacteristic = pAdminService->createCharacteristic(
         UUID_ADMIN_CHARACTERISTIC,
-        NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::WRITE_AUTHEN);
-    pAdminPassCharacteristic = pAdminService->createCharacteristic(
-        UUID_ADMINPASS_CHARACTERISTIC,
-        NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::WRITE_AUTHEN);
-    pAddUserCharacteristic = pAdminService->createCharacteristic(
-        UUID_ADDUSER_CHARACTERISTIC,
-        NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::WRITE_AUTHEN);
-    pAddPassCharacteristic = pAdminService->createCharacteristic(
-        UUID_ADDPASS_CHARACTERISTIC,
-        NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::WRITE_AUTHEN);
-    pAdminActionCharacteristic = pAdminService->createCharacteristic(
-        UUID_ADMINACTION_CHARACTERISTIC, NIMBLE_PROPERTY::WRITE);
+        NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC |
+NIMBLE_PROPERTY::WRITE_AUTHEN); pAdminPassCharacteristic =
+pAdminService->createCharacteristic( UUID_ADMINPASS_CHARACTERISTIC,
+        NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC |
+NIMBLE_PROPERTY::WRITE_AUTHEN); pAddUserCharacteristic =
+pAdminService->createCharacteristic( UUID_ADDUSER_CHARACTERISTIC,
+        NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC |
+NIMBLE_PROPERTY::WRITE_AUTHEN); pAddPassCharacteristic =
+pAdminService->createCharacteristic( UUID_ADDPASS_CHARACTERISTIC,
+        NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC |
+NIMBLE_PROPERTY::WRITE_AUTHEN); pAdminActionCharacteristic =
+pAdminService->createCharacteristic( UUID_ADMINACTION_CHARACTERISTIC,
+NIMBLE_PROPERTY::WRITE);
 
     pUserService->start();
     pLockStateCharacteristic->setValue("not initialized");
-    pLockStateCharacteristic->setCallbacks(new LockStateCharacteristicCallbacks());
-    pAdminService->start();
-    pAdminActionCharacteristic->setCallbacks(new AdminActionCharacteristicCallbacks());
+    pLockStateCharacteristic->setCallbacks(new
+LockStateCharacteristicCallbacks()); pAdminService->start();
+    pAdminActionCharacteristic->setCallbacks(new
+AdminActionCharacteristicCallbacks());
 
     NimBLEAdvertising *pUserAdvertising = NimBLEDevice::getAdvertising();
     pUserAdvertising->addServiceUUID(UUID_USER_SERVICE);
-    logVerboseln("[BLE Server] Advertising with User Service UUID: " UUID_USER_SERVICE);
-    pUserAdvertising->setScanResponse(true);
+    logVerboseln("[BLE Server] Advertising with User Service UUID: "
+UUID_USER_SERVICE); pUserAdvertising->setScanResponse(true);
     pUserAdvertising->setAppearance(0x0708);  // 0x0708: Door Lock
     pUserAdvertising->start();
     NimBLEAdvertising *pAdminAdvertising = NimBLEDevice::getAdvertising();
     pAdminAdvertising->addServiceUUID(UUID_ADMIN_SERVICE);
-    logVerboseln("[BLE Server] Advertising with Admin Service UUID: " UUID_ADMIN_SERVICE);
-    pAdminAdvertising->setScanResponse(true);
+    logVerboseln("[BLE Server] Advertising with Admin Service UUID: "
+UUID_ADMIN_SERVICE); pAdminAdvertising->setScanResponse(true);
     pAdminAdvertising->start();
     logInfoln("[BLE Server] BLE Ready");
 }
