@@ -70,7 +70,7 @@ void onUserWrite(BLEDevice central, BLECharacteristic characteristic) {
   const unsigned char *user = pUserCharacteristic.value();
 #if DEBUG_MODE == 1
   for (size_t i = 0; i < 32; i++) {
-    Serial.print(user[i], HEX); // Hexadezimal ausgeben
+    Serial.print(user[i], HEX); // Output as hexadecimal
     Serial.print(" ");
   }
   Serial.print("\n");
@@ -83,7 +83,7 @@ void onUserWrite(BLEDevice central, BLECharacteristic characteristic) {
   const unsigned char *pass = pPassCharacteristic.value();
 #if DEBUG_MODE == 1
   for (size_t i = 0; i < 32; i++) {
-    Serial.print(pass[i], HEX); // Hexadezimal ausgeben
+    Serial.print(pass[i], HEX); // Output as hexadecimal
     Serial.print(" ");
   }
   Serial.print("\n");
@@ -96,7 +96,7 @@ void onUserWrite(BLEDevice central, BLECharacteristic characteristic) {
   const unsigned char *lockstate = characteristic.value();
 #if DEBUG_MODE == 1
   for (size_t i = 0; i < 1; i++) {
-    Serial.print(lockstate[i], HEX); // Hexadezimal ausgeben
+    Serial.print(lockstate[i], HEX); // Output as hexadecimal
     Serial.print(" ");
   }
   Serial.print("\n");
@@ -111,7 +111,7 @@ void onAdminWrite(BLEDevice central, BLECharacteristic characteristic) {
   const unsigned char *admin = pAdminCharacteristic.value();
 #if DEBUG_MODE == 1
   for (size_t i = 0; i < 32; i++) {
-    Serial.print(admin[i], HEX); // Hexadezimal ausgeben
+    Serial.print(admin[i], HEX); // Output as hexadecimal
     Serial.print(" ");
   }
   Serial.print("\n");
@@ -123,7 +123,7 @@ void onAdminWrite(BLEDevice central, BLECharacteristic characteristic) {
   const unsigned char *adminPass = pAdminPassCharacteristic.value();
 #if DEBUG_MODE == 1
   for (size_t i = 0; i < 32; i++) {
-    Serial.print(adminPass[i], HEX); // Hexadezimal ausgeben
+    Serial.print(adminPass[i], HEX); // Output as hexadecimal
     Serial.print(" ");
   }
   Serial.print("\n");
@@ -135,7 +135,7 @@ void onAdminWrite(BLEDevice central, BLECharacteristic characteristic) {
   const unsigned char *userName = pAddUserCharacteristic.value();
 #if DEBUG_MODE == 1
   for (size_t i = 0; i < 32; i++) {
-    Serial.print(userName[i], HEX); // Hexadezimal ausgeben
+    Serial.print(userName[i], HEX); // Output as hexadecimal
     Serial.print(" ");
   }
   Serial.print("\n");
@@ -147,7 +147,7 @@ void onAdminWrite(BLEDevice central, BLECharacteristic characteristic) {
   const unsigned char *userPass = pAddPassCharacteristic.value();
 #if DEBUG_MODE == 1
   for (size_t i = 0; i < 32; i++) {
-    Serial.print(userPass[i], HEX); // Hexadezimal ausgeben
+    Serial.print(userPass[i], HEX); // Output as hexadecimal
     Serial.print(" ");
   }
   Serial.print("\n");
@@ -159,7 +159,7 @@ void onAdminWrite(BLEDevice central, BLECharacteristic characteristic) {
   const unsigned char *action = characteristic.value();
 #if DEBUG_MODE == 1
   for (size_t i = 0; i < 1; i++) {
-    Serial.print(action[i], HEX); // Hexadezimal ausgeben
+    Serial.print(action[i], HEX); // Output as hexadecimal
     Serial.print(" ");
   }
   Serial.print("\n");
@@ -172,7 +172,7 @@ void onCryptoWrite(BLEDevice central, BLECharacteristic characteristic) {
   memcpy(m_publicKey, characteristic.value(), RSA_KEY_SIZE);
 #if DEBUG_MODE == 1
   for (size_t i = 0; i < RSA_KEY_SIZE; i++) {
-    Serial.print(m_publicKey[i], HEX); // Hexadezimal ausgeben
+    Serial.print(m_publicKey[i], HEX); // Output as hexadecimal
     Serial.print(" ");
   }
   Serial.print("\n");
@@ -183,12 +183,12 @@ void onCryptoWrite(BLEDevice central, BLECharacteristic characteristic) {
   // encrypt AES Key
   if (encrypt_aes_key_with_rsa(m_publicKey, RSA_KEY_SIZE,
                                encrypted_aes_key) == 0) {
-    logInfoln("AES-256 Key erfolgreich mit RSA-1024 & OAEP verschlüsselt!");
+    logInfoln("AES-256 Key encrypted successfully with RSA-1024 & OAEP!");
   } else {
-    logFatalln("Fehler bei der Verschlüsselung!");
+    logFatalln("Error during encryption!");
   }
   characteristic.writeValue(encrypted_aes_key, RSA_KEY_SIZE);
-  logInfoln("AES-256 Key gesetzt");
+  logInfoln("Set AES-256 Key");
 }
 
 void setLockStateFromBLE(LockState state) {
