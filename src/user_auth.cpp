@@ -73,11 +73,9 @@ User searchUser(const std::string& username) {
   logVerboseln(
       ("[UserAuth::searchUser] File opened: " + String(filename)).c_str());
 
-  size_t commaIndex1;
-
   while (users.available()) {
     line = users.readStringUntil('\n').c_str();
-    commaIndex1 = line.find(',');
+    size_t commaIndex1 = line.find(',');
     // logVerboseln(("[UserAuth::searchUser] Parse line: " + line).c_str());
     if (commaIndex1 == std::string::npos) {
       continue;
@@ -126,7 +124,8 @@ User searchUser(const std::string& username) {
 std::string hashPassword(const std::string& password) {
   SHA3_256 sha3;
   sha3.update(password.c_str(), password.length());
-  byte hash[32];
+  byte hash[32] = {
+      0};  // Initialize array to prevent uninitialized variable error
   sha3.finalize(hash, sizeof(hash));
 
   std::string hashedPassword = "";

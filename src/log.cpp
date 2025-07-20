@@ -15,7 +15,7 @@ void printTimestamp(Print* _logOutput) {
   const unsigned long Hours = (secs % SECS_PER_DAY) / SECS_PER_HOUR;
 
   char timestamp[20];
-  sprintf(timestamp, "(%02d:%02d:%02d.%03d | ", Hours, Minutes, Seconds,
+  sprintf(timestamp, "(%02lu:%02lu:%02lu.%03lu | ", Hours, Minutes, Seconds,
           MilliSeconds);
   _logOutput->print(timestamp);
 }

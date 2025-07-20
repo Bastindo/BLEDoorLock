@@ -15,4 +15,14 @@ void printBLEaddress();
 void onUserWrite(BLEDevice central, BLECharacteristic characteristic);
 void onAdminWrite(BLEDevice central, BLECharacteristic characteristic);
 void onCryptoWrite(BLEDevice central, BLECharacteristic characteristic);
+
+// Key exchange helper functions
+void resetKeyExchangeState();
+void resetChunkedReception();
+void handleFullData(const uint8_t* data, size_t dataSize,
+                    BLECharacteristic& characteristic);
+void handleChunkedData(const uint8_t* data, size_t dataSize,
+                       BLECharacteristic& characteristic);
+void processCompleteRSAKey(BLECharacteristic& characteristic);
+
 #endif

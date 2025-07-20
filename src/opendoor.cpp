@@ -10,7 +10,7 @@ void doorClose() {
   relayClose();
 }
 
-hw_timer_t *lockTimer = NULL;
+hw_timer_t* lockTimer = NULL;
 LockState lockState = LOCKED;
 
 void IRAM_ATTR lockTimerISR() {
@@ -34,7 +34,7 @@ void setupOpener() {
 
 LockState getLockState() { return lockState; }
 
-void setLockStateByUser(LockState state, std::string username) {
+void setLockStateByUser(LockState state, const std::string& username) {
   UserOpenEvent event;
   event.unixTime = time(nullptr);
   event.username = username;

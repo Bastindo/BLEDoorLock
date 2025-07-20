@@ -9,7 +9,7 @@
 
 void setupOpener();
 LockState getLockState();
-void setLockStateByUser(LockState state, std::string username);
+void setLockStateByUser(LockState state, const std::string& username);
 void setLockState(LockState state);
 
 #endif
